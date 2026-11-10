@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "handoff-ledger-backend"
+version = "1.0.0"
+description = "Verifiable Knowledge Handover Pipeline & SPOK Risk Engine"
+readme = "../README.md"
+authors = [{ name = "Abhan", email = "abhan@clubtech.org" }]
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "sqlalchemy>=2.0.0",
+    "pydantic>=2.5.0",
+    "networkx>=3.0",
+    "python-multipart>=0.0.9",
+    "httpx>=0.26.0",
+    "pytest>=8.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

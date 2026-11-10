@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "TASK-402",
+    "title": "Setup automated backup cron on production",
+    "assignee": "Alice Maintainer",
+    "status": "BLOCKED",
+    "updated_at": "2026-08-22T10:00:00Z",
+    "description": "Setup automated backup cron on the production server. Status: blocked on credentials.",
+    "access_label": "INTERNAL"
+  },
+  {
+    "task_id": "TASK-501",
+    "title": "Migrate database to PostgreSQL",
+    "assignee": "Alice Maintainer",
+    "status": "DONE",
+    "updated_at": "2026-10-12T15:00:00Z",
+    "description": "Cutover database from SQLite to Postgres on port 5432.",
+    "access_label": "PUBLIC"
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "commit_hash": "4f2a91b",
+    "author": "Alice Maintainer",
+    "email": "alice@clubtech.org",
+    "date": "2026-10-11T14:22:00Z",
+    "message": "feat(db): migrated database engine from sqlite to postgresql on port 5432 to handle concurrency.",
+    "files_changed": ["backend/db/postgres.py", "docker-compose.yml"],
+    "access_label": "PUBLIC"
+  },
+  {
+    "commit_hash": "1a08c3e",
+    "author": "Bob Developer",
+    "email": "bob@clubtech.org",
+    "date": "2026-07-13T09:15:00Z",
+    "message": "chore: initialized sqlite3 database backend for local club demo.",
+    "files_changed": ["backend/db/sqlite.py"],
+    "access_label": "PUBLIC"
+  },
+  {
+    "commit_hash": "8b94df1",
+    "author": "Alice Maintainer",
+    "email": "alice@clubtech.org",
+    "date": "2026-10-25T18:40:00Z",
+    "message": "fix(auth): implement in-memory token fallback when redis warm-up fails.",
+    "files_changed": ["backend/auth/token_store.py"],
+    "access_label": "INTERNAL"
+  }
+]
