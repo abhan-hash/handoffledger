@@ -13,6 +13,9 @@ import {
   ExternalLink,
   Shield,
   Activity,
+  Check,
+  X,
+  Edit3,
 } from 'lucide-react'
 
 export type EvidenceStatus = 'verified' | 'inferred' | 'conflicting' | 'missing_evidence'
@@ -32,10 +35,15 @@ export interface ClaimCardProps {
   entityName?: string
   citations?: CitationItem[]
   effectiveLabel?: 'PUBLIC' | 'INTERNAL' | 'LEAD_ONLY' | 'RESTRICTED'
+  reviewerApproved?: boolean
+  reviewerNotes?: string
+  isReviewerMode?: boolean
+  onReviewDecide?: (action: 'approve' | 'reject' | 'edit', notes?: string, newText?: string) => void
   onClick?: () => void
 }
 
 export const ClaimCard: React.FC<ClaimCardProps> = ({
+  id,
   statement,
   sourceType = 'git_commit',
   sourceLabel = 'GitHub Commit #4f2a',
@@ -44,9 +52,16 @@ export const ClaimCard: React.FC<ClaimCardProps> = ({
   entityName,
   citations = [],
   effectiveLabel = 'PUBLIC',
+  reviewerApproved,
+  reviewerNotes,
+  isReviewerMode = false,
+  onReviewDecide,
   onClick,
 }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false)
+  const [isEditing, setIsEditing] = useState<boolean>(false)
+  const [editNotes, setEditNotes] = useState<string>(reviewerNotes || '')
+  const [editText, setEditText] = useState<string>(statement)
 
   // Apple-style status tagging with vibrational translucent color
   const getStatusBadge = () => {
@@ -108,6 +123,7 @@ export const ClaimCard: React.FC<ClaimCardProps> = ({
 
   return (
     <motion.div
+      data-claim-id={id}
       layout
       initial={{ opacity: 0, y: 12, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -243,6 +259,90 @@ export const ClaimCard: React.FC<ClaimCardProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Reviewer Triage Controls (when in Reviewer role or callback provided) */}
+      {(isReviewerMode || onReviewDecide) && (
+        <div className="mt-3.5 pt-3.5 border-t border-purple-500/20 bg-purple-950/20 -mx-4 -mb-4 p-3.5 rounded-b-2xl flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-purple-400" />
+            <span className="text-xs font-semibold text-purple-300">Lead Review Action:</span>
+            {reviewerApproved && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                ✓ Approved
+              </span>
+            )}
+            {reviewerNotes && (
+              <span className="text-[11px] text-gray-400 italic">"{reviewerNotes}"</span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {!isEditing ? (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onReviewDecide?.('approve', editNotes)
+                  }}
+                  className="flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-sm active:scale-95"
+                >
+                  <Check className="w-3.5 h-3.5" /> Approve
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setIsEditing(true)
+                  }}
+                  className="flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-lg bg-white/10 hover:bg-white/20 text-gray-200 transition-all active:scale-95"
+                >
+                  <Edit3 className="w-3.5 h-3.5" /> Edit
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onReviewDecide?.('reject', editNotes || 'Rejected in triage')
+                  }}
+                  className="flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-lg bg-rose-600/80 hover:bg-rose-500 text-white transition-all active:scale-95"
+                >
+                  <X className="w-3.5 h-3.5" /> Reject
+                </button>
+              </>
+            ) : (
+              <div className="flex items-center gap-2 w-full mt-2" onClick={(e) => e.stopPropagation()}>
+                <input
+                  type="text"
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  placeholder="Corrected claim statement..."
+                  className="px-2.5 py-1 text-xs rounded-lg bg-black/60 border border-white/20 text-white flex-1 focus:outline-none focus:border-purple-400"
+                />
+                <input
+                  type="text"
+                  value={editNotes}
+                  onChange={(e) => setEditNotes(e.target.value)}
+                  placeholder="Reviewer note..."
+                  className="px-2.5 py-1 text-xs rounded-lg bg-black/60 border border-white/20 text-white w-32 focus:outline-none focus:border-purple-400"
+                />
+                <button
+                  onClick={() => {
+                    onReviewDecide?.('edit', editNotes, editText)
+                    setIsEditing(false)
+                  }}
+                  className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-purple-600 text-white"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="px-2 py-1 text-xs rounded-lg bg-white/10 text-gray-400"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </motion.div>
   )
 }

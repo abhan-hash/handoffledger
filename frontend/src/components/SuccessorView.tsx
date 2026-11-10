@@ -3,7 +3,7 @@ import { Flame, Key, Compass, ListTodo, ShieldCheck, Lock, CheckSquare, ShieldAl
 import { toast } from 'sonner'
 import { Claim } from './ClaimLedger'
 
-interface SuccessorViewProps {
+export interface SuccessorViewProps {
   panes: {
     landmines: Claim[]
     accounts: Claim[]

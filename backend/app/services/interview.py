@@ -4,7 +4,7 @@ Manages Top-10 prioritized interview questions for departing members,
 formulates recognition hypotheses, and updates claim ledger status upon answer ingestion.
 """
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict, Any
 from datetime import datetime, timezone
 from backend.app.models.schemas import (
     InterviewQuestion,
@@ -21,10 +21,12 @@ def generate_interview_queue(
     graph_engine: KnowledgeGraphEngine,
     claims: List[ClaimEntry],
     limit: int = 10,
+    answers_map: Optional[Dict[str, Dict[str, Any]]] = None,
 ) -> List[InterviewQuestion]:
     """
     Constructs the Top-10 exit interview queue targeting high-SPOK entities.
-    Suppresses peripheral noise (in-degree < 2) per specification.
+    Suppresses peripheral noise (in-degree < 2) per specification,
+    and reflects recorded answer statuses.
     """
     top_nodes = graph_engine.get_top_interview_nodes(limit=limit, exclude_peripheral=True)
     questions: List[InterviewQuestion] = []
@@ -44,9 +46,12 @@ def generate_interview_queue(
             )
             citations = []
 
+        qid = f"q-{node.node_id}"
+        ans = answers_map.get(qid, {}) if answers_map else {}
+
         questions.append(
             InterviewQuestion(
-                question_id=f"q-{node.node_id}",
+                question_id=qid,
                 target_node_id=node.node_id,
                 node_name=node.name,
                 entity_type=node.entity_type,
@@ -54,6 +59,8 @@ def generate_interview_queue(
                 interview_priority=node.interview_priority,
                 candidate_hypothesis=candidate_text,
                 supporting_citations=citations,
+                status=ans.get("status", "unanswered"),
+                response_text=ans.get("response_text"),
             )
         )
 

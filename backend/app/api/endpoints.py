@@ -238,7 +238,7 @@ def extract_claims(req: Optional[ExtractRequest] = None, db: Session = Depends(g
     """
     global _claims_cache, _graph_engine
     chunks, claims, engine = get_cached_state()
-    clearance = req.clearance if req else AccessLabel.PUBLIC
+    clearance = req.clearance if req and req.clearance else AccessLabel.RESTRICTED
     visible_chunks = filter_chunks_by_clearance(chunks, clearance)
 
     extracted = batch_extract_claims(visible_chunks)
@@ -328,13 +328,23 @@ def get_graph():
 
 
 @router.get("/interview/queue", response_model=List[InterviewQuestion])
-def get_interview_queue(limit: int = 10):
+def get_interview_queue(limit: int = 10, db: Session = Depends(get_db)):
     """
     Returns the Top-10 prioritized exit interview questions for the departing member.
-    Suppresses peripheral low-centrality nodes (in-degree < 2).
+    Suppresses peripheral low-centrality nodes (in-degree < 2) while retaining high-risk entities.
     """
     _, claims, engine = get_cached_state()
-    return generate_interview_queue(engine, claims, limit=limit)
+    answers_map = {}
+    try:
+        recs = db.query(InterviewAnswerModel).all()
+        for r in recs:
+            answers_map[r.question_id] = {
+                "status": r.status,
+                "response_text": r.response_text,
+            }
+    except Exception:
+        pass
+    return generate_interview_queue(engine, claims, limit=limit, answers_map=answers_map)
 
 
 @router.post("/interview/answer", response_model=ClaimEntry)

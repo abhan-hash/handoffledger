@@ -25,12 +25,32 @@ export interface Claim {
 
 interface ClaimLedgerProps {
   claims: Claim[]
+  nodes?: { node_id: string; spok_score: number }[]
   onVerify: () => void
   isLoading?: boolean
+  isReviewerMode?: boolean
+  onReviewDecide?: (claimId: string, action: 'approve' | 'reject' | 'edit', notes?: string, newText?: string) => void
 }
 
-export const ClaimLedger: React.FC<ClaimLedgerProps> = ({ claims, onVerify, isLoading }) => {
+export const ClaimLedger: React.FC<ClaimLedgerProps> = ({
+  claims,
+  nodes,
+  onVerify,
+  isLoading,
+  isReviewerMode = false,
+  onReviewDecide,
+}) => {
   const [selectedState, setSelectedState] = useState<string>('all')
+
+  const nodeSpokMap = React.useMemo(() => {
+    const map: Record<string, number> = {}
+    if (nodes) {
+      for (const n of nodes) {
+        map[n.node_id] = n.spok_score
+      }
+    }
+    return map
+  }, [nodes])
 
   const filtered = claims.filter(c => selectedState === 'all' || c.state === selectedState)
 
@@ -95,8 +115,8 @@ export const ClaimLedger: React.FC<ClaimLedgerProps> = ({ claims, onVerify, isLo
         ) : (
           filtered.map((claim, idx) => {
             const { type, label } = getSourceDetails(claim)
-            // Compute deterministic dummy score based on index if not attached
-            const dummySpok = claim.state === 'verified' ? 0.25 : claim.state === 'inferred' ? 0.55 : 0.85
+            // Look up real SPOK score from graph node engine
+            const realSpok = nodeSpokMap[claim.entity_id] ?? (claim.state === 'verified' ? 0.20 : 0.65)
             const statusTag = (claim.state === 'superseded' ? 'inferred' : claim.state) as EvidenceStatus
 
             return (
@@ -107,10 +127,14 @@ export const ClaimLedger: React.FC<ClaimLedgerProps> = ({ claims, onVerify, isLo
                 sourceType={type}
                 sourceLabel={label}
                 status={statusTag}
-                spokScore={dummySpok}
+                spokScore={realSpok}
                 entityName={claim.entity_id}
                 citations={claim.citations}
                 effectiveLabel={claim.effective_label}
+                reviewerApproved={claim.reviewer_approved}
+                reviewerNotes={claim.reviewer_notes}
+                isReviewerMode={isReviewerMode}
+                onReviewDecide={(action, notes, newText) => onReviewDecide?.(claim.claim_id, action, notes, newText)}
               />
             )
           })

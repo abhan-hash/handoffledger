@@ -54,59 +54,7 @@ def compute_effective_label(
     return AccessLabel.join(cited_labels)
 
 
-def parse_timestamp_safe(ts: str) -> datetime:
-    """Safely converts ISO-8601 string to aware datetime."""
-    try:
-        dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
-        return dt
-    except Exception:
-        return datetime.min.replace(tzinfo=timezone.utc)
-
-
-def resolve_temporal_supersession(claims: List[ClaimEntry]) -> List[ClaimEntry]:
-    """
-    Resolves historical state updates:
-    Claims sharing (entity_id, attribute_key) are ordered by source_timestamp.
-    Older claims (t_old < t_new) are updated to EvidenceState.SUPERSEDED
-    rather than causing false-positive conflict flags.
-    """
-    grouped: Dict[Tuple[str, str], List[ClaimEntry]] = {}
-
-    for claim in claims:
-        if claim.attribute_key:
-            key = (claim.entity_id, claim.attribute_key)
-            if key not in grouped:
-                grouped[key] = []
-            grouped[key].append(claim)
-
-    updated_claims = list(claims)
-
-    for (entity_id, attr_key), group in grouped.items():
-        if len(group) <= 1:
-            continue
-
-        # Sort ascending by source timestamp (oldest first)
-        group_sorted = sorted(group, key=lambda c: parse_timestamp_safe(c.source_timestamp))
-
-        # The newest claim is authoritative
-        latest_claim = group_sorted[-1]
-
-        # Older claims are marked superseded
-        for older in group_sorted[:-1]:
-            if older.claim_id != latest_claim.claim_id and older.state != EvidenceState.SUPERSEDED:
-                # Find index in updated_claims
-                for idx, c in enumerate(updated_claims):
-                    if c.claim_id == older.claim_id:
-                        updated_claims[idx] = older.model_copy(
-                            update={
-                                "state": EvidenceState.SUPERSEDED,
-                                "reviewer_notes": f"Superseded by newer claim {latest_claim.claim_id}",
-                            }
-                        )
-
-    return updated_claims
+from backend.app.services.temporal import resolve_temporal_supersession
 
 
 def run_verification_pipeline(

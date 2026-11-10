@@ -131,6 +131,38 @@ def extract_claims_from_chunk(chunk: IngestedChunk) -> List[ClaimEntry]:
                 )
             )
 
+    # Rule 6: Generic Factual Sentence Extractor (for arbitrary uploads / custom text)
+    if not claims and content:
+        sentences = [s.strip() for s in re.split(r"(?<=[.!?\n])\s+", content) if len(s.strip()) > 15]
+        for s_idx, sentence in enumerate(sentences[:3]):
+            keywords = ["database", "service", "server", "port", "config", "workaround", "decision", "todo", "fix", "deploy", "auth", "token", "backup", "engine"]
+            lower_s = sentence.lower()
+            if any(kw in lower_s for kw in keywords) or ":" in sentence or "=" in sentence:
+                entity = "general_component"
+                attr = "configuration"
+                for kw in ["database", "auth", "backup", "cache", "deploy", "frontend", "backend", "api"]:
+                    if kw in lower_s:
+                        entity = f"{kw}_service"
+                        break
+
+                state = EvidenceState.INFERRED
+                if "verified" in lower_s or (hasattr(chunk, "source_type") and chunk.source_type.value == "git_commit"):
+                    state = EvidenceState.VERIFIED
+
+                claims.append(
+                    ClaimEntry(
+                        claim_id=f"claim-gen-{chunk.chunk_id[:8]}-{s_idx+1}",
+                        entity_id=entity,
+                        attribute_key=attr,
+                        claim_text=sentence[:120],
+                        state=state,
+                        effective_label=chunk.access_label,
+                        citations=[Citation(chunk_id=chunk.chunk_id, quote_span=sentence)],
+                        source_timestamp=chunk.timestamp,
+                        created_by=chunk.author,
+                    )
+                )
+
     return claims
 
 

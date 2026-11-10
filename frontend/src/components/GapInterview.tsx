@@ -13,7 +13,7 @@ export interface InterviewQuestion {
   status: 'unanswered' | 'confirmed' | 'edited' | 'refuted'
 }
 
-interface GapInterviewProps {
+export interface GapInterviewProps {
   questions: InterviewQuestion[]
   onRespond: (questionId: string, action: 'confirm' | 'edit' | 'refute', text?: string) => void
 }

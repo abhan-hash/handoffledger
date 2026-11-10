@@ -28,11 +28,22 @@ def find_conflicting_claim_pairs(claims: List[ClaimEntry]) -> List[Tuple[ClaimEn
         if len(group) < 2:
             continue
         # Bounded comparison within same entity attribute
+        def parse_ts(ts_str: str) -> datetime:
+            try:
+                dt = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                return dt
+            except Exception:
+                return datetime.min.replace(tzinfo=timezone.utc)
+
         for i in range(len(group)):
             for j in range(i + 1, len(group)):
                 c1, c2 = group[i], group[j]
-                # If statements assert fundamentally different values at the same timestamp
-                if c1.source_timestamp == c2.source_timestamp and c1.claim_text != c2.claim_text:
+                t1, t2 = parse_ts(c1.source_timestamp), parse_ts(c2.source_timestamp)
+                delta_sec = abs((t1 - t2).total_seconds())
+                # If statements assert different values within a co-temporal 24h operational window
+                if (delta_sec <= 86400 or c1.source_timestamp == c2.source_timestamp) and c1.claim_text != c2.claim_text:
                     conflicting_pairs.append((c1, c2))
 
     return conflicting_pairs

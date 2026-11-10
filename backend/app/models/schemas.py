@@ -250,3 +250,4 @@ class EvalResult(BaseModel):
     token_consumption_reduction: str = "82%"
     canary_leakage_rate: float = 0.0
     passed_canary_negative_controls: bool = True
+    details: Optional[List[Dict[str, Any]]] = None

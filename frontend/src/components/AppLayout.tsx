@@ -20,9 +20,10 @@ import {
   Eye,
   User,
   Compass,
+  ShieldCheck,
 } from 'lucide-react'
 
-export type TabId = 'overview' | 'ledger' | 'heatmap' | 'interview' | 'successor' | 'benchmark'
+export type TabId = 'overview' | 'ledger' | 'staging' | 'heatmap' | 'interview' | 'successor' | 'benchmark'
 export type UserRole = 'departing' | 'successor' | 'reviewer'
 export type ClearanceLevel = 'PUBLIC' | 'INTERNAL' | 'LEAD_ONLY' | 'RESTRICTED'
 
@@ -143,6 +144,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           icon: Layers,
           badge: totalClaimsCount > 0 ? `${totalClaimsCount}` : undefined,
           description: 'Atomic verified claims & evidence sources',
+        },
+        {
+          id: 'staging' as TabId,
+          label: 'Reviewer Staging',
+          icon: ShieldCheck,
+          badge: currentRole === 'reviewer' ? 'Lead Triage' : undefined,
+          badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+          description: 'Human-in-the-loop review & conflict triage',
         },
         {
           id: 'heatmap' as TabId,

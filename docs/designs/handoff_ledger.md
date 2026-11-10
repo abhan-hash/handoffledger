@@ -14,7 +14,7 @@ The system reconstructs project state from disparate activity traces (commits, t
 
 --------------------------------------------------------------------------------
 
-## The Problem
+## Problem Statement
 
 When a contributor leaves a technical project, the knowledge they take with them is rarely preserved in the code or existing documentation:
 1. **Unrecorded Decision Rationale**: Wikis document what was built, but rarely why a specific architecture, library, or workaround was selected.
@@ -25,8 +25,9 @@ When a contributor leaves a technical project, the knowledge they take with them
 
 --------------------------------------------------------------------------------
 
-## Goals
+## Goals & Non-Goals
 
+### Goals
 *   **Evidence-Linked Claim Ledger**: Decompose project knowledge into atomic claims bound to verbatim source citations and tagged with four explicit evidence states (`verified`, `inferred`, `conflicting`, `missing evidence`).
 *   **Deterministic SPOK Risk Scoring**: Compute single-point-of-knowledge vulnerability scores per graph entity using:
     $$\text{SPOK}(n) = 0.5 \times \text{Concentration}(n) + 0.25 \times \text{StaleDecay}(n) + 0.25 \times \text{EvidenceWeakness}(n)$$
@@ -35,10 +36,7 @@ When a contributor leaves a technical project, the knowledge they take with them
 *   **Quantitative Handover Evaluation**: Evaluate handover completeness against 20 gold-standard ground-truth questions on fixed dataset `v1_demo`, measuring accuracy gain and token efficiency delta against an unorganized raw source baseline.
 *   **Operational Successor Runway**: Deliver a role-appropriate 4-pane successor dashboard (Active Landmines, Account Ownership, Decision Rationale, Immediate Backlog) enabling day-1 continuation.
 
---------------------------------------------------------------------------------
-
-## Non-Goals
-
+### Non-Goals
 *   **Live Third-Party Webhooks & Connectors**: No live GitHub OAuth or Discord bot integrations for Round 2; ingestion operates on static structured JSON and Markdown archives.
 *   **Autonomous Semantic Conflict Resolution**: The system detects contradictions and surfaces them side-by-side; resolution authority remains strictly with human reviewers and departing members.
 *   **Export Formatting Engines**: Automated PDF/A generation and external presentation publishing are excluded from Round 2 scope.
@@ -69,11 +67,11 @@ When a contributor leaves a technical project, the knowledge they take with them
 ### CUJ 3: Successor Day-1 Onboarding with Role-Restricted Context
 *   **Given**: An incoming member with `INTERNAL` clearance takes ownership of the backend service.
 *   **When**: The successor logs into the dashboard.
-*   **Then**: The 4-pane runway displays active workarounds, unrecorded decision rationales, and next actions; restricted deployment keys appear as structural redacted placeholders (`[RESTRICTED: Contact Admin]`) without leaking credentials or canary tokens.
+*   **Then**: The 4-pane runway displays active workarounds, unrecorded decision rationales, and next actions; restricted deployment keys appear as structural redacted placeholders (`[RESTRICTED CLAIM: Access Clearance 'RESTRICTED' Required. Contact Lead.]`) without leaking credentials or canary tokens.
 
 --------------------------------------------------------------------------------
 
-## Technical Plan (Architecture)
+## Proposed Architecture
 
 ### 1. High-Level Architecture & End-to-End Pipeline
 
@@ -116,54 +114,57 @@ flowchart TD
 ### 2. Subsystem Specifications
 
 #### 2.1 Ingestion & Pre-Generation Security Engine
-*   **Credential Sanitizer (`redactor.py`)**: Runs before chunk storage. Applies pre-compiled regex passes targeting standard high-entropy credentials (OpenAI `sk-`, GitHub `ghp_`, AWS `AKIA`, and generic JWT tokens), replacing matches with `[REDACTED_CREDENTIAL]`.
-*   **Chunker (`chunker.py`)**: Breaks raw sources into atomic, immutable chunks with deterministic SHA-256 identifiers, tracking file paths, line ranges, author identity, access label, and ISO-8601 timestamps.
-*   **Security Lattice & Clearance Filter (`clearance.py`)**: Labels obey the strict partial order:
-    $$\mathcal{L} = \{ \text{PUBLIC} \prec \text{INTERNAL} \prec \text{RESTRICTED} \}$$
-    Before prompt compilation for any role $R$, all chunks with $\mathcal{L}(k) \not\preceq \text{Clearance}(R)$ are purged from the LLM context window.
+*   **Credential Sanitizer (`redactor.py`)**: Runs before chunk storage. Applies pre-compiled regex passes targeting standard high-entropy credentials, replacing matches with pattern-specific tags (`[REDACTED_OPENAI_KEY]`, `[REDACTED_GITHUB_TOKEN]`, `[REDACTED_AWS_KEY]`, `[REDACTED_JWT_TOKEN]`).
+*   **Chunker (`chunker.py`)**: Breaks raw sources into atomic, immutable chunks with deterministic SHA-256 identifiers, tracking file paths, character offsets (`char_start`, `char_end`), author identity, access label, and ISO-8601 timestamps.
+*   **Security Lattice & Clearance Filter (`clearance.py`)**: Labels obey the strict 4-tier partial order:
+    $$\mathcal{L} = \{ \text{PUBLIC} (0) \prec \text{INTERNAL} (1) \prec \text{LEAD_ONLY} (2) \prec \text{RESTRICTED} (3) \}$$
+    - *Phase 1 (Canonical Ingestion & Extraction)*: The pipeline ingests sources and extracts atomic claims with canonical system clearance, tagging each chunk and claim with its least-upper-bound lattice join label $\mathcal{L}(c) = \bigsqcup \mathcal{L}(k)$.
+    - *Phase 2 (Query Context & Successor Projection)*: When generating prompts for LLM querying or rendering successor views for a viewer with clearance $R$, unprivileged chunks ($\mathcal{L}(k) \not\preceq R$) are strictly excluded from prompt context, and inaccessible claims are projected into structural redacted placeholders.
 
 #### 2.2 Extraction & Hybrid Verification Pipeline
-*   **Strict JSON Extractor (`extractor.py`)**: Invokes the LLM with structured outputs bound to Pydantic schemas. The model extracts entities, logical attribute keys, and atomic claims citing exact chunk identifiers and verbatim quote spans.
+*   **Structured Extractor (`extractor.py`)**: Parses chunks into structured factual statements bound to Pydantic schemas. Claims cite exact chunk identifiers and verbatim quote spans.
 *   **Deterministic Python Verifier (`verifier.py`)**:
     1.  *Substring Match Assertion*: Verifies that `citation.quote_span in chunk.content`. Any claim failing substring validation or referencing nonexistent chunks is immediately flagged as `missing evidence`.
     2.  *Lattice Label Inheritance*: Asserts that `claim.effective_label == max(chunks[c].access_label for c in claim.citations)`.
 *   **Temporal Progression Resolver (`temporal.py`)**:
-    Claims targeting the same entity and attribute key (e.g., `(backend_service, database_driver)`) are sorted chronologically by source timestamp. If a newer claim ($t_{\text{new}} > t_{\text{old}}$) establishes an updated state, the older claim is automatically updated to `state = ClaimState.SUPERSEDED`, eliminating false-positive contradiction alerts.
+    Claims targeting the same entity and attribute key (e.g., `(backend_service, database_driver)`) are sorted chronologically by source timestamp. If a newer claim ($t_{\text{new}} > t_{\text{old}}$) establishes an updated state, the older claim is automatically updated to `state = ClaimState.SUPERSEDED` with an audit record in `version_history`, eliminating false-positive contradiction alerts.
 *   **Bounded Semantic Contradiction Pass (`contradiction.py`)**:
-    A lightweight secondary LLM evaluation is triggered *only* for claim pairs targeting the same entity attribute within identical or overlapping temporal windows. Bounding candidate pairs to attribute matches ensures algorithmic complexity scales at $O(K)$ where $K \ll N^2$.
+    Evaluates candidate claim pairs targeting the same entity attribute within a 24-hour operational window using deterministic attribute and state rules, bounding candidate pairs to $O(K)$ where $K \ll N^2$.
 
 #### 2.3 Graph Engine & Mathematical SPOK Risk Formulation
-*   **Graph Model (`graph.py`)**: Models project entities as nodes (People, Components, Accounts, Decisions, Tasks) and dependencies/citations as directed edges.
+*   **Graph Model (`graph_service.py`)**: Models project entities as nodes (`PERSON`, `COMPONENT`, `ACCOUNT`, `DECISION`, `TASK`) and dependencies between entities as directed edges. Claims map to entities and cite chunks:
+    $$\text{Chunks}(n) = \{ k \in \text{Chunks} \mid \exists c \in \text{Claims}(n) \text{ s.t. } k \in c.\text{citations} \}$$
 *   **Single-Point-of-Knowledge Equation (`spok.py`)**:
     $$\text{SPOK}(n) = 0.5 \times \text{Concentration}(n) + 0.25 \times \text{StaleDecay}(n) + 0.25 \times \text{EvidenceWeakness}(n)$$
     
     1.  **Concentration ($C_n \in [0, 1]$)**:
         $$C_n = \frac{\sum_{k \in \text{Chunks}(n)} \mathbb{I}(\text{author}(k) = \text{leaver}) \cdot w(\text{type}(k))}{\sum_{k \in \text{Chunks}(n)} w(\text{type}(k))}$$
-        Source authority weights: $w(\text{git}) = 1.0$, $w(\text{task}) = 0.7$, $w(\text{doc}) = 0.6$, $w(\text{chat}) = 0.5$.
+        Where $\mathbb{I}(\cdot)$ is the binary indicator function. Source authority weights: $w(\text{git}) = 1.0$, $w(\text{pr}) = 0.9$, $w(\text{task}) = 0.7$, $w(\text{doc}) = 0.6$, $w(\text{chat}) = 0.5$. Boundary: $C_n = 0.0$ if $\text{Chunks}(n) = \emptyset$.
     2.  **Stale Decay ($D_n \in [0, 1]$)**:
         $$D_n = 1.0 - \exp\left(-\frac{\ln(2)}{t_{1/2}} \cdot \Delta t_n\right), \quad t_{1/2} = 60 \text{ days}$$
+        Where $\Delta t_n = (t_{\text{now}} - \max_{k \in \text{Chunks}(n)} t_k) / 86400 \text{ seconds}$.
     3.  **Evidence Weakness ($W_n \in [0, 1]$)**:
-        $$W_n = \frac{1}{|C_n|} \sum_{c \in C_n} \text{Penalty}(\text{state}(c))$$
-        Discrete state penalties: $\text{verified} = 0.0$, $\text{inferred} = 0.4$, $\text{conflicting} = 0.8$, $\text{missing evidence} = 1.0$.
+        $$W_n = \frac{1}{|\mathcal{C}_n|} \sum_{c \in \mathcal{C}_n} \text{Penalty}(\text{state}(c))$$
+        Discrete state penalties: $\text{verified} = 0.0$, $\text{superseded} = 0.2$, $\text{inferred} = 0.4$, $\text{conflicting} = 0.8$, $\text{missing evidence} = 1.0$. Boundary: $W_n = 1.0$ if $|\mathcal{C}_n| = 0$.
 *   **Centrality Filter & Interview Ranking**:
-    -   *Noise Filtering*: Nodes with $\text{deg}_{\text{in}}(n) < 2$ or touching only a single peripheral file are flagged with `is_filtered_from_heatmap = True`. They remain active in the graph database but are hidden from the visual risk heatmap to prevent peripheral noise.
+    -   *Noise Filtering*: Nodes with $(\text{deg}_{\text{in}}(n) < 2) \land (\text{chunk\_count} \le 1)$ are flagged with `is_filtered_from_heatmap = True` to suppress peripheral noise from the visual heatmap.
     -   *Priority Queue*:
         $$\text{Priority}(n) = \text{SPOK}(n) \times (1.0 + \log(1 + \text{deg}_{\text{in}}(n)))$$
-        The top 10 ranked nodes populate the exit interview.
+        High-SPOK nodes ($\text{SPOK}(n) \ge 0.5$) are retained in the exit interview candidate pool regardless of in-degree to ensure single-maintainer bottlenecks are never suppressed. The top 10 ranked nodes populate the exit interview.
 
 #### 2.4 Adaptive Exit Interview Engine (`interview.py`)
-*   **Draft-and-Verify Recognition**: The LLM pre-synthesizes draft explanations from commit messages and chat fragments ("Commit 4f2a indicates SQLite was selected due to serverless deployment constraints").
+*   **Draft-and-Verify Recognition**: The system pre-synthesizes candidate recognition hypotheses from commit messages and chat fragments.
 *   **Action Handlers**: The departing contributor selects `Confirm`, `Edit`, or `Refute`. Confirmations immediately upgrade claims to `verified` with the leaver as source; resolving a node dynamically re-computes downstream SPOK scores in real time.
 
 #### 2.5 Successor 4-Pane Presentation & Canary Testing
 *   **Four Cognitive Panes (`successor.py`)**:
-    1.  *Active Landmines & Workarounds*: Known flaky tests, uncontained edge cases, temporary patches.
-    2.  *Account & Key Ownership*: Cloud consoles, external APIs, and credentials requiring permission transfer.
-    3.  *Decision Rationale*: Unrecorded architectural trade-offs and discarded alternatives.
-    4.  *Next Actions Backlog*: Incomplete tasks and their latest confirmed state.
-*   **Redacted Placeholders**: Inaccessible items render as structural stubs (`[RESTRICTED: Contact Admin]`), preserving dependency context without disclosing payload data.
+    1.  *Active Landmines & Workarounds*: Claims with `attribute_key in ['workaround', 'known_issue', 'gotcha']` or `state == CONFLICTING`.
+    2.  *Account & Key Ownership*: Entities of type `ACCOUNT` or claims targeting access credentials.
+    3.  *Decision Rationale*: Entities of type `DECISION` or claims explaining architectural trade-offs.
+    4.  *Next Actions Backlog*: Entities of type `TASK` and unverified/inferred items requiring immediate continuation.
+*   **Redacted Placeholders**: Inaccessible items render as structural stubs (`[RESTRICTED CLAIM: Access Clearance '<label>' Required. Contact Lead.]`), preserving dependency context without disclosing payload data.
 *   **Canary Leakage Assertions (`tests/test_canary_leakage.py`)**:
-    Automated pytest test suite asserts zero occurrences of planted canary UUIDs across generation prompts, successor API responses, client DOM renders, and server logs.
+    Automated pytest test suite asserts zero occurrences of planted high-entropy canary UUIDs across generation prompts, successor API responses, and server logs.
 
 #### 2.6 Held-Out Evaluation Harness (`evaluation.py`)
 *   **Benchmark Baseline**: Evaluated against fixed synthetic dataset `v1_demo`.
@@ -268,27 +269,39 @@ class GraphNodeSchema(BaseModel):
 ### Alternative A: Monolithic Generative Handover Summary
 *   **Pros**: Single LLM prompt execution; zero pipeline orchestration; simple text UI output.
 *   **Cons**: Epistemic masking hides evidence gaps; hallucinates missing rationales; lacks verbatim citations; impossible to verify provenance.
-*   **Reason for Rejection**: Rejected by author: Fails the fundamental requirement of epistemic auditability. Incoming members cannot distinguish grounded repository truth from generative hallucination.
+*   **Reason for Rejection**: Fails the fundamental requirement of epistemic auditability. Narrative summaries mask evidence gaps and incoming members cannot distinguish grounded repository truth from generative hallucination.
 
 ### Alternative B: Post-Generation Output Redaction
 *   **Pros**: Standard web-application security pattern; easy regex/string scrubbing on final responses.
 *   **Cons**: Sensitive source material enters the LLM prompt and context window; exposes internal credentials and restricted conversations to model provider logs; wastes token budget on inaccessible material.
-*   **Reason for Rejection**: Rejected by author: Violates lattice access guarantees. Clearance must be enforced before generation so restricted chunks never enter LLM prompt context.
+*   **Reason for Rejection**: Violates lattice access guarantees. Clearance must be enforced before generation so restricted chunks never enter LLM prompt context.
 
 ### Alternative C: Pure LLM Claim Verifier
 *   **Pros**: Accommodates fuzzy semantic alignment and natural language paraphrasing without rigid string matching.
 *   **Cons**: Correlated hallucination when the same model family grades its own outputs; non-deterministic evaluation breaks automated CI assertions; adds latency and API cost.
-*   **Reason for Rejection**: Rejected by author: Verifying quote-span citations and lattice label inheritance must be deterministic and fully reproducible in Python.
+*   **Reason for Rejection**: Verifying quote-span citations and lattice label inheritance must be deterministic and fully reproducible in Python.
 
 ### Alternative D: Unconstrained Exhaustive Handover Questionnaire (50+ Questions)
 *   **Pros**: Captures every component and peripheral dependency in the project.
 *   **Cons**: Severe questionnaire fatigue; departing contributors short on time abandon the questionnaire, resulting in zero captured context.
-*   **Reason for Rejection**: Rejected by author: An adaptive top-10 priority queue driven by SPOK risk and recognition-based draft-and-verify micro-forms captures maximum critical context within realistic time constraints.
+*   **Reason for Rejection**: An adaptive top-10 priority queue driven by SPOK risk and recognition-based draft-and-verify micro-forms captures maximum critical context within realistic time constraints.
 
 ### Alternative E: Unfiltered Graph Heatmap Visualization
 *   **Pros**: Exhaustive representation of every touched file, single-line commit, and contributor in repository history.
 *   **Cons**: Overwhelms the UI with hundreds of trivial, peripheral single-touch nodes; obscures true single-point-of-failure bottlenecks.
-*   **Reason for Rejection**: Rejected by author: Enforcing an in-degree $\ge 2$ centrality filter suppresses peripheral noise while preserving true dependency vulnerabilities.
+*   **Reason for Rejection**: Enforcing an in-degree and chunk filter suppresses peripheral noise from the visual heatmap while preserving true dependency bottlenecks.
+
+--------------------------------------------------------------------------------
+
+## Risks & Mitigations
+
+| Risk Domain | Potential Failure Mode | Severity | Technical Mitigation Strategy |
+| :--- | :--- | :--- | :--- |
+| **Generative Hallucination** | LLM fabricates architectural rationale or attributes decisions to wrong individuals. | Blocker | Enforce deterministic Python quote-span verification (`quote_span in chunk.content`) and character offsets. Claims lacking verbatim citations are demoted to `missing evidence`. |
+| **Data Leakage in Handover** | Sensitive credentials or private discussions disclosed to unprivileged successors. | Blocker | Pre-generation clearance filtering purges restricted chunks before LLM context compilation. Inaccessible claims render as structural placeholders (`[RESTRICTED CLAIM: ...]`). Automated CI canary assertions verify zero leakage. |
+| **Departing Contributor Dropout** | Departing person abandons open-ended handover questionnaires due to cognitive fatigue. | Major | Top-10 SPOK priority ranking focuses strictly on highest-risk gaps. Draft-and-verify recognition model reduces effort to one-click Confirm/Edit/Refute actions. |
+| **Token Budget & Rate Limits** | Large source repositories exceed LLM context windows or trigger HTTP 429 rate limits. | Major | Chunk batching (100-chunk limits), rule-based extraction fast-paths, and local deterministic verification avoid unnecessary LLM round-trips. |
+| **Storage & Concurrency Limits** | SQLite database file contention during parallel ingestion. | Minor | Synchronous SQLite database with SQLAlchemy 2.0 ORM; declarative schemas preserve immediate portability for cloud PostgreSQL migration. |
 
 --------------------------------------------------------------------------------
 
@@ -304,7 +317,7 @@ class GraphNodeSchema(BaseModel):
 *   **Graph Query Scaling**: SPOK calculations on NetworkX for graphs up to 5,000 nodes execute in under 150ms in Python.
 
 ### 3. Reliability & Dual-Dialect Storage
-*   **Dual-Dialect SQL Engine**: SQLite for zero-configuration hackathon demonstration and local evaluation; PostgreSQL for cloud team deployments via standard SQLAlchemy 2.0 ORM mappings.
+*   **Reliable Storage Engine**: Synchronous SQLite for zero-configuration hackathon demonstration and local evaluation; SQLAlchemy 2.0 declarative ORM models preserve full schema portability for PostgreSQL cloud deployments.
 
 --------------------------------------------------------------------------------
 

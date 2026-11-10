@@ -59,11 +59,19 @@ class KnowledgeGraphEngine:
     def attach_chunk(self, node_id: str, chunk: IngestedChunk):
         if node_id not in self.node_chunks:
             self.node_chunks[node_id] = []
+        for idx, existing in enumerate(self.node_chunks[node_id]):
+            if existing.chunk_id == chunk.chunk_id:
+                self.node_chunks[node_id][idx] = chunk
+                return
         self.node_chunks[node_id].append(chunk)
 
     def attach_claim(self, node_id: str, claim: ClaimEntry):
         if node_id not in self.node_claims:
             self.node_claims[node_id] = []
+        for idx, existing in enumerate(self.node_claims[node_id]):
+            if existing.claim_id == claim.claim_id:
+                self.node_claims[node_id][idx] = claim
+                return
         self.node_claims[node_id].append(claim)
 
     def compute_all_spok(
@@ -104,7 +112,11 @@ class KnowledgeGraphEngine:
         Excludes peripheral low-centrality nodes (in-degree < 2) per the specification.
         """
         all_nodes = self.compute_all_spok()
-        candidates = [n for n in all_nodes if not n.is_filtered_from_heatmap] if exclude_peripheral else all_nodes
+        # Retain high-risk SPOK nodes (>= 0.5) in the interview queue even if filtered from heatmap
+        candidates = [
+            n for n in all_nodes
+            if (not n.is_filtered_from_heatmap) or (n.spok_score >= 0.5)
+        ] if exclude_peripheral else all_nodes
         if not candidates:
             candidates = all_nodes
 

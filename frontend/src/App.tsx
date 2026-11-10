@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Cpu } from 'lucide-react'
 import { toast } from 'sonner'
 import { AppLayout, TabId, UserRole } from './components/AppLayout'
 import { ElegostraHero } from './components/ElegostraHero'
@@ -7,6 +6,8 @@ import { ClaimLedger, Claim } from './components/ClaimLedger'
 import { RiskHeatmap, GraphNode, GraphEdge } from './components/RiskHeatmap'
 import { GapInterview, InterviewQuestion } from './components/GapInterview'
 import { SuccessorView } from './components/SuccessorView'
+import { ReviewerStaging } from './components/ReviewerStaging'
+import { EvaluationDashboard, EvalData } from './components/EvaluationDashboard'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('overview')
@@ -17,6 +18,7 @@ export default function App() {
   const [nodes, setNodes] = useState<GraphNode[]>([])
   const [edges, setEdges] = useState<GraphEdge[]>([])
   const [questions, setQuestions] = useState<InterviewQuestion[]>([])
+  const [evalData, setEvalData] = useState<EvalData | null>(null)
   const [successorPanes, setSuccessorPanes] = useState({
     landmines: [] as Claim[],
     accounts: [] as Claim[],
@@ -68,6 +70,17 @@ export default function App() {
         setSuccessorPanes(succData.panes)
         setCanaryDetected(succData.canary_leak_detected)
       }
+
+      // 6. Fetch eval metrics
+      const evalRes = await fetch('/api/v1/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dataset_name: 'v1_demo', viewer_clearance: clearance }),
+      })
+      if (evalRes.ok) {
+        const evalJson = await evalRes.json()
+        setEvalData(evalJson)
+      }
     } catch (err) {
       console.error('Failed to connect to backend:', err)
       setBackendOnline(false)
@@ -87,6 +100,7 @@ export default function App() {
       newClearance = 'LEAD_ONLY'
     } else if (role === 'reviewer') {
       newClearance = 'RESTRICTED'
+      setActiveTab('staging')
     } else {
       newClearance = 'INTERNAL'
     }
@@ -110,6 +124,7 @@ export default function App() {
   }
 
   const handleRunEval = async () => {
+    setIsLoading(true)
     try {
       const res = await fetch('/api/v1/evaluate', {
         method: 'POST',
@@ -118,10 +133,47 @@ export default function App() {
       })
       if (res.ok) {
         const data = await res.json()
+        setEvalData(data)
         toast.success(`Evaluated 20 Golden Questions: Accuracy ${Math.round(data.successor_ledger_accuracy * 100)}% (+${Math.round(data.accuracy_delta * 100)}% gain). Zero Canary Leaks.`)
       }
     } catch (err) {
       toast.error('Failed to execute evaluation suite')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleReviewDecide = async (
+    claimId: string,
+    action: 'approve' | 'reject' | 'edit',
+    notes?: string,
+    newText?: string
+  ) => {
+    setIsLoading(true)
+    try {
+      const res = await fetch('/api/v1/review/decide', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Clearance': clearance,
+        },
+        body: JSON.stringify({
+          claim_id: claimId,
+          action,
+          reviewer_notes: notes,
+          updated_claim_text: newText,
+        }),
+      })
+      if (res.ok) {
+        toast.success(`Review decision '${action}' recorded for claim #${claimId}`)
+        await loadData()
+      } else {
+        toast.error('Failed to record review action')
+      }
+    } catch (err) {
+      toast.error('Network error during review decision')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -156,8 +208,8 @@ export default function App() {
 
   // Dynamic Handover Quality Score based on verified proportion
   const verifiedCount = claims.filter(c => c.state === 'verified').length
-  const qualityScore = claims.length > 0 ? Math.round((verifiedCount / claims.length) * 100) : 84
-  const unresolvedGaps = questions.filter(q => q.status === 'unanswered').length || questions.length || 5
+  const qualityScore = claims.length > 0 ? Math.round((verifiedCount / claims.length) * 100) : 0
+  const unresolvedGaps = questions.filter(q => q.status === 'unanswered').length
 
   return (
     <AppLayout
@@ -197,20 +249,38 @@ export default function App() {
 
       {/* 1. Claim Ledger Workspace */}
       {activeTab === 'ledger' && (
-        <ClaimLedger claims={claims} onVerify={handleVerify} isLoading={isLoading} />
+        <ClaimLedger
+          claims={claims}
+          nodes={nodes}
+          onVerify={handleVerify}
+          isLoading={isLoading}
+          isReviewerMode={currentRole === 'reviewer'}
+          onReviewDecide={handleReviewDecide}
+        />
       )}
 
-      {/* 2. Knowledge-Risk Heatmap */}
+      {/* 2. Reviewer Staging Dashboard (Human-in-the-loop review) */}
+      {activeTab === 'staging' && (
+        <ReviewerStaging
+          claims={claims}
+          nodes={nodes}
+          onReviewDecide={handleReviewDecide}
+          isLoading={isLoading}
+          clearance={clearance}
+        />
+      )}
+
+      {/* 3. Knowledge-Risk Heatmap */}
       {activeTab === 'heatmap' && (
         <RiskHeatmap nodes={nodes} edges={edges} />
       )}
 
-      {/* 3. Exit Interview Flow */}
+      {/* 4. Exit Interview Flow */}
       {activeTab === 'interview' && (
         <GapInterview questions={questions} onRespond={handleInterviewRespond} />
       )}
 
-      {/* 4. Successor Runway View */}
+      {/* 5. Successor Runway View */}
       {activeTab === 'successor' && (
         <SuccessorView
           panes={successorPanes}
@@ -219,55 +289,13 @@ export default function App() {
         />
       )}
 
-      {/* 5. Evaluation Benchmark Delta */}
+      {/* 6. Evaluation Benchmark Delta */}
       {activeTab === 'benchmark' && (
-        <div className="max-w-4xl mx-auto space-y-6">
-          <div className="p-6 md:p-8 rounded-2xl glass-panel space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <h3 className="text-lg font-bold text-zinc-100">Held-Out Handover Quality Evaluation</h3>
-                <p className="text-xs text-zinc-400 mt-1">
-                  Benchmarked against 20 pre-written ground truth questions on fixed synthetic release <strong className="text-emerald-400">v1_demo</strong>.
-                </p>
-              </div>
-              <button
-                onClick={handleRunEval}
-                className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs active:scale-[0.97] transition-all"
-              >
-                Execute Eval Run
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="p-4 rounded-xl bg-black/40 border border-zinc-800/60 space-y-1">
-                <span className="text-xs font-mono text-zinc-400">Raw Baseline Accuracy</span>
-                <div className="text-2xl font-bold font-mono text-zinc-400">45.0%</div>
-                <span className="text-[11px] text-zinc-500">Unfiltered repo commits & chat logs</span>
-              </div>
-
-              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-1">
-                <span className="text-xs font-mono text-emerald-300">Successor Ledger Accuracy</span>
-                <div className="text-2xl font-bold font-mono text-emerald-400">90.0%</div>
-                <span className="text-[11px] text-emerald-400 font-semibold">+45.0% Accuracy Gain</span>
-              </div>
-
-              <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/30 space-y-1">
-                <span className="text-xs font-mono text-purple-300">Token Overhead Reduction</span>
-                <div className="text-2xl font-bold font-mono text-purple-400">82.0%</div>
-                <span className="text-[11px] text-purple-300">Eliminates noise & repeated reads</span>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20 text-xs font-mono text-emerald-400 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold">
-                <Cpu className="w-4 h-4" /> Zero Canary Leakage Assertions Passed
-              </div>
-              <p className="text-zinc-400 text-[11px]">
-                Negative control questions probed restricted admin keys; model appropriately refused and cited redacted placeholders with zero canary UUID disclosures.
-              </p>
-            </div>
-          </div>
-        </div>
+        <EvaluationDashboard
+          evalData={evalData}
+          onRunEval={handleRunEval}
+          isLoading={isLoading}
+        />
       )}
     </AppLayout>
   )

@@ -196,10 +196,10 @@ def get_v1_demo_fixtures(
             engine.attach_chunk("auth_service", ch)
         elif "task" in ch.chunk_id or "backup" in ch.content:
             engine.attach_chunk("backup_cron", ch)
-        elif "restricted" in ch.chunk_id or "deploy" in ch.content:
-            engine.attach_chunk("deploy_pipeline", ch)
         elif "doc" in ch.chunk_id or "redis" in ch.content:
             engine.attach_chunk("cache_layer", ch)
+        elif "restricted" in ch.chunk_id or "deploy" in ch.content:
+            engine.attach_chunk("deploy_pipeline", ch)
 
     for cl in claims:
         engine.attach_claim(cl.entity_id, cl)

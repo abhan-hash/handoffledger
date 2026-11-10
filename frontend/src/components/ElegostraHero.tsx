@@ -45,6 +45,9 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
   const [demoClearance, setDemoClearance] = useState<'PUBLIC' | 'RESTRICTED'>('PUBLIC')
   const [searchQuery, setSearchQuery] = useState<string>('')
 
+  // Dynamic Peak SPOK score from graph nodes
+  const peakSpok = nodes.length > 0 ? Math.max(...nodes.map(n => n.spok_score)) : 0.88
+
   // Live SPOK preview based on slider
   const liveSpok = Math.min(1.0, 0.5 * sliderConcentration + 0.25 * 0.45 + 0.25 * 0.20)
 
@@ -139,7 +142,7 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.4),transparent_60%)]" />
               <div className="text-center text-white relative z-10 space-y-0.5">
                 <span className="text-[10px] font-mono tracking-widest uppercase opacity-85">SPOK Index</span>
-                <div className="text-4xl font-extrabold font-mono tracking-tight">0.88</div>
+                <div className="text-4xl font-extrabold font-mono tracking-tight">{peakSpok.toFixed(2)}</div>
                 <div className="text-[10px] font-semibold bg-white/20 px-2 py-0.5 rounded-full inline-block backdrop-blur-md">
                   Single Point
                 </div>
