@@ -66,6 +66,10 @@ def test_successor_runway_view_no_canary_leak():
     assert "accounts" in data["panes"]
     assert "decisions" in data["panes"]
     assert "backlog" in data["panes"]
+    assert len(data["panes"]["landmines"]) >= 3
+    assert len(data["panes"]["accounts"]) >= 3
+    assert len(data["panes"]["decisions"]) >= 3
+    assert len(data["panes"]["backlog"]) >= 3
     assert settings.CANARY_TOKEN_SEED not in str(data)
 
 
