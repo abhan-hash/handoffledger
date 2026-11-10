@@ -256,6 +256,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                   <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
                     v1.0
                   </span>
+                  <span className="hidden lg:inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-medium">
+                    <Sparkles className="w-2.5 h-2.5 text-emerald-400" />
+                    NVIDIA Nemotron Ultra 550B
+                  </span>
                 </div>
               </div>
             </div>

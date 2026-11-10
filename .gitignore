@@ -1,9 +1,46 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
-node_modules/
-.pytest_cache/
-*.db
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Distribution / packaging
+build/
+eggs/
+*.egg-info/
+!frontend/dist/
+!frontend/dist/**
+
+# Environments & Databases
 .env
+.env.*
+!.env.example
+*.db
+handoff_ledger.db
+.venv/
+venv/
+env/
+
+# Node / Frontend build (preserve frontend/dist for production serving)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing & caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Agent tools & IDE internals
+.agents/
+.skills/
 .hyperframes/
-.skills/brag
-.agents/skills/brag*
+brag-output/composition/
+
+# Temporary / Draft markdown reports
+2026-11-11_DRIFT_REPORT.md
+goldfish_review_report.md
+concepts_brief.md
+design_draft.md

@@ -15,6 +15,7 @@ from backend.app.models.schemas import (
 )
 from backend.app.services.graph_service import KnowledgeGraphEngine
 from backend.app.config import settings
+from backend.app.services.nemotron_client import generate_nemotron_hypothesis
 
 
 def generate_interview_queue(
@@ -33,18 +34,30 @@ def generate_interview_queue(
 
     for idx, node in enumerate(top_nodes, 1):
         node_claims = [c for c in claims if c.entity_id == node.node_id]
-        if node_claims:
-            candidate_text = (
-                f"Records indicate '{node_claims[0].claim_text}' "
-                f"Is this rationale accurate and what hidden operational dependencies exist?"
-            )
+        candidate_text: str = ""
+        citations = []
+
+        # Attempt to synthesize targeted hypothesis via NVIDIA Nemotron Ultra 550B
+        if settings.has_nvidia_key:
+            nemotron_hyp = generate_nemotron_hypothesis(node.name, node.entity_type, node_claims)
+            if nemotron_hyp:
+                candidate_text = nemotron_hyp
+
+        if not candidate_text:
+            if node_claims:
+                candidate_text = (
+                    f"Records indicate '{node_claims[0].claim_text}' "
+                    f"Is this rationale accurate and what hidden operational dependencies exist?"
+                )
+                citations = node_claims[0].citations
+            else:
+                candidate_text = (
+                    f"Component '{node.name}' has no recorded rationale or decisions. "
+                    f"What key architectural trade-offs govern its current behavior?"
+                )
+                citations = []
+        elif node_claims:
             citations = node_claims[0].citations
-        else:
-            candidate_text = (
-                f"Component '{node.name}' has no recorded rationale or decisions. "
-                f"What key architectural trade-offs govern its current behavior?"
-            )
-            citations = []
 
         qid = f"q-{node.node_id}"
         ans = answers_map.get(qid, {}) if answers_map else {}

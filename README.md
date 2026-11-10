@@ -51,6 +51,22 @@ Where:
 
 ---
 
+## AI Model Architecture: NVIDIA Nemotron Ultra 550B
+
+HandoffLedger integrates **NVIDIA Nemotron Ultra 550B** (`nvidia/nemotron-3-ultra-550b-a55b`) via NVIDIA NIM:
+- **Long-Context Structured Extraction**: Ingests commits, pull requests, chats, and documentation to parse atomic factual claims with exact verbatim substring citations.
+- **Adaptive Exit Interview Synthesis**: Formulates deep, probing hypotheses targeting unrecorded architectural decisions and operational trade-offs for high-SPOK components.
+- **Successor Handover Briefing**: Synthesizes verified claims into structured executive and technical onboarding briefs.
+- **Graceful Deterministic Fallback**: Falls back automatically to deterministic heuristic pattern extraction if the API key is not supplied, guaranteeing 100% offline uptime.
+
+Configure your NVIDIA API key in `.env`:
+```bash
+NVIDIA_API_KEY=nvapi-...
+NVIDIA_MODEL=nvidia/nemotron-3-ultra-550b-a55b
+```
+
+---
+
 ## Quickstart
 
 ### 1. Run Automated Test Suite
@@ -58,16 +74,8 @@ Where:
 PYTHONPATH=. pytest tests/ -v
 ```
 
-### 2. Start Backend API
+### 2. Start Unified Full-Stack Server
 ```bash
-python3 -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
+python3 -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
 ```
-API Documentation: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-
-### 3. Start Frontend Dashboard
-```bash
-cd frontend
-npm install
-npm run dev
-```
-Dashboard: [http://127.0.0.1:5173/](http://127.0.0.1:5173/)
+Open [http://localhost:8000](http://localhost:8000) for the UI and [http://localhost:8000/docs](http://localhost:8000/docs) for the interactive Swagger API documentation.

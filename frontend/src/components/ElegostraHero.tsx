@@ -65,7 +65,12 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
         {/* Decorative Pill Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-6 shadow-sm">
           <span className={`w-2 h-2 rounded-full ${backendOnline ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-          Verified Knowledge Handover & Dependency Risk Engine ({viewerClearance})
+          <span>Verified Knowledge Handover & Dependency Risk Engine ({viewerClearance})</span>
+          <span className="hidden sm:inline text-zinc-500">•</span>
+          <span className="hidden sm:inline-flex items-center gap-1 text-emerald-300 font-mono text-[11px]">
+            <Sparkles className="w-3 h-3 text-emerald-400" />
+            NVIDIA Nemotron Ultra 550B
+          </span>
         </div>
 
         {/* Hero Title */}

@@ -7,6 +7,7 @@ Provides deterministic structured extraction and fallback to LLM when API keys a
 from typing import List, Optional
 import os
 import re
+from backend.app.config import settings
 from backend.app.models.schemas import (
     IngestedChunk,
     ClaimEntry,
@@ -14,13 +15,29 @@ from backend.app.models.schemas import (
     EvidenceState,
     AccessLabel,
 )
+from backend.app.services.nemotron_client import extract_claims_nemotron
 
 
 def extract_claims_from_chunk(chunk: IngestedChunk) -> List[ClaimEntry]:
     """
-    Extracts atomic claims from a single chunk using deterministic pattern extraction
-    and exact verbatim substring citation spans.
+    Extracts atomic claims from a single chunk.
+    If NVIDIA_API_KEY is configured, utilizes NVIDIA Nemotron Ultra 550B for
+    frontier-scale comprehension and quote extraction.
+    Otherwise gracefully falls back to deterministic rule extraction.
     """
+    # 1. Attempt NVIDIA Nemotron Ultra 550B Extraction if API key is present
+    if settings.has_nvidia_key:
+        nemotron_claims = extract_claims_nemotron(
+            content=chunk.content,
+            chunk_id=chunk.chunk_id,
+            author=chunk.author,
+            access_label=chunk.access_label,
+            timestamp=chunk.timestamp,
+        )
+        if nemotron_claims:
+            return nemotron_claims
+
+    # 2. Deterministic Pattern Matching & Heuristic Fallback
     claims: List[ClaimEntry] = []
     content = chunk.content
 
