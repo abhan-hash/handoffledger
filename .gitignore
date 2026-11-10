@@ -37,7 +37,7 @@ htmlcov/
 .agents/
 .skills/
 .hyperframes/
-brag-output/composition/
+brag-output/
 
 # Temporary / Draft markdown reports
 2026-11-11_DRIFT_REPORT.md
