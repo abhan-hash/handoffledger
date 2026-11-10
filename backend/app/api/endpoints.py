@@ -59,7 +59,10 @@ from backend.app.services.interview import (
 )
 from backend.app.services.successor import build_successor_runway_view
 from backend.app.services.evaluation import evaluate_handover_benchmark
-from backend.app.services.nemotron_client import synthesize_handover_nemotron
+from backend.app.services.nemotron_client import (
+    synthesize_handover_nemotron,
+    query_nemotron_architecture,
+)
 from backend.app.config import settings
 
 router = APIRouter(prefix="/api/v1")
@@ -570,3 +573,25 @@ def synthesize_handover_llm(req: Optional[Dict[str, Any]] = None):
         "claims_analyzed": len(claims),
         "configured": settings.has_nvidia_key,
     }
+
+
+@router.post("/llm/query")
+def query_architecture(
+    req: Dict[str, Any],
+    x_clearance: str = Header("INTERNAL"),
+):
+    """
+    Answers an interactive architecture or operational query using NVIDIA Nemotron Ultra 550B,
+    grounded strictly on verified claims visible to the caller's clearance level.
+    """
+    try:
+        clearance = AccessLabel(x_clearance.upper())
+    except ValueError:
+        clearance = AccessLabel.INTERNAL
+
+    query_str = req.get("query", "").strip()
+    if not query_str:
+        raise HTTPException(status_code=400, detail="Query string is required.")
+
+    _, claims, _ = get_cached_state()
+    return query_nemotron_architecture(query_str, claims, clearance=clearance)

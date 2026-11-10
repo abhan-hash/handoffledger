@@ -51,3 +51,18 @@ def test_nemotron_client_graceful_offline_fallback():
         assert hyp is None
     finally:
         settings.NVIDIA_API_KEY = original_key
+
+
+def test_nemotron_llm_query_endpoint():
+    """Verify /api/v1/llm/query provides grounded architectural Q&A with lattice safety."""
+    response = client.post(
+        "/api/v1/llm/query",
+        json={"query": "What breaks if Redis restarts?"},
+        headers={"X-Clearance": "INTERNAL"},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "answer" in data
+    assert "model" in data
+    assert len(data["answer"]) > 20
+    assert settings.CANARY_TOKEN_SEED not in str(data)
