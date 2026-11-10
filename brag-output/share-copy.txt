@@ -1,0 +1,1 @@
+Never lose critical project knowledge when someone leaves. We built HandoffLedger to turn messy commits, task boards, and chat logs into verified Day-1 starter kits with zero leaked secrets.
