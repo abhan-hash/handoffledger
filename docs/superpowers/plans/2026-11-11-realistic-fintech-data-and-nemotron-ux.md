@@ -33,23 +33,12 @@
 - Test: `tests/test_chunker_and_extractor.py`
 - Test: `tests/test_evaluation_harness.py`
 
-- [ ] **Step 1: Write tests for expanded fintech claims and citations**
-  Add unit assertions in `tests/test_chunker_and_extractor.py` asserting that new fintech chunks (webhook idempotency, pgbouncer pool, AWS KMS key, Kafka topic) extract valid claims with exact quote spans.
-- [ ] **Step 2: Run test to confirm failure before implementation**
-  `PYTHONPATH=. pytest tests/test_chunker_and_extractor.py -k "fintech" -v`
-- [ ] **Step 3: Expand `synthetic_data.py` with 16–20 realistic fintech chunks and claims**
-  In `get_v1_demo_fixtures()`, expand chunks and claims to include:
-  - Gotchas: In-memory token fallback on Redis warmup (`auth_service`), Stripe webhook clock drift replay bug (`webhook_receiver`), pgbouncer connection pool exhaustion (`database_engine`), billing invoice table lock (`billing_worker`).
-  - Accounts: Production root deployment key (`deploy_pipeline` - RESTRICTED canary), AWS KMS tokenization key (`aws_kms`), PagerDuty escalation policy (`datadog_monitoring`), Bank SFTP clearing endpoint (`bank_sftp`).
-  - Decisions: PostgreSQL 16 migration on port 5432 (`database_engine`), Redis cluster with 3600s TTL and Sentinel failover (`cache_layer`), Kafka 12-partition topic routing (`event_stream`), SHA-256 payload idempotency locks (`idempotency_store`).
-  - Pending Tasks: Backup cron unblocking (`backup_cron`), v2 HMAC-SHA256 webhook migration (`webhook_v2`), CAMT.053 settlement batch parser (`settlement_reconciliation`), pgbouncer max-connections increase (`pgbouncer_tuning`).
-  Ensure the original 6 claims (`claim-001` through `claim-006`) are preserved with exact IDs for backward compatibility.
-- [ ] **Step 4: Update `extractor.py` deterministic rules**
-  Add matching extraction patterns for the new fintech items so rule-based extraction works seamlessly alongside Nemotron.
-- [ ] **Step 5: Run tests and verify all pass**
-  `PYTHONPATH=. pytest tests/test_chunker_and_extractor.py tests/test_evaluation_harness.py -v`
-- [ ] **Step 6: Commit changes**
-  `git commit -am "feat(data): expand synthetic dataset with realistic fintech payment infrastructure claims"`
+- [x] **Step 1: Write tests for expanded fintech claims and citations**
+- [x] **Step 2: Run test to confirm failure before implementation**
+- [x] **Step 3: Expand `synthetic_data.py` with 16–20 realistic fintech chunks and claims**
+- [x] **Step 4: Update `extractor.py` deterministic rules**
+- [x] **Step 5: Run tests and verify all pass**
+- [x] **Step 6: Commit changes**
 
 ---
 
@@ -59,20 +48,11 @@
 - Modify: `backend/app/services/successor.py`
 - Test: `tests/test_api_endpoints.py`
 
-- [ ] **Step 1: Write test asserting balanced 4-pane distribution**
-  In `tests/test_api_endpoints.py`, assert that `/api/v1/successor/view` returns at least 3 items in `panes.landmines`, 3 items in `panes.accounts`, 3 items in `panes.decisions`, and 3 items in `panes.backlog`.
-- [ ] **Step 2: Run test to confirm failure**
-  `PYTHONPATH=. pytest tests/test_api_endpoints.py -k "test_successor_runway_view" -v`
-- [ ] **Step 3: Fix categorization logic in `successor.py`**
-  Adjust the categorization order in `build_successor_runway_view`:
-  - Check for `task`, `todo`, `cron`, `blocked`, `migration`, `backlog` to route to `backlog` first before general credential checks.
-  - Route credentials/keys/deploy secrets to `accounts`.
-  - Route workarounds/fallbacks/bugs to `landmines`.
-  - Route architecture/database/decisions/superseded items to `decisions`.
-- [ ] **Step 4: Run tests and verify all pass**
-  `PYTHONPATH=. pytest tests/test_api_endpoints.py -v`
-- [ ] **Step 5: Commit changes**
-  `git commit -am "fix(successor): balance 4-pane categorization and populate pending tasks backlog"`
+- [x] **Step 1: Write test asserting balanced 4-pane distribution**
+- [x] **Step 2: Run test to confirm failure**
+- [x] **Step 3: Fix categorization logic in `successor.py`**
+- [x] **Step 4: Run tests and verify all pass**
+- [x] **Step 5: Commit changes**
 
 ---
 
@@ -83,21 +63,12 @@
 - Modify: `backend/app/api/endpoints.py`
 - Test: `tests/test_nemotron_integration.py`
 
-- [ ] **Step 1: Write test for `POST /api/v1/llm/query`**
-  In `tests/test_nemotron_integration.py`, add a test testing `/api/v1/llm/query` with a query like *"What breaks if Redis restarts?"*, asserting response status 200, non-empty answer, grounded citations, and zero canary disclosure under `INTERNAL` clearance.
-- [ ] **Step 2: Run test to confirm failure**
-  `PYTHONPATH=. pytest tests/test_nemotron_integration.py -k "test_nemotron_llm_query" -v`
-- [ ] **Step 3: Implement `query_nemotron_architecture` in `nemotron_client.py`**
-  Create function `query_nemotron_architecture(query: str, claims: List[ClaimEntry], clearance: AccessLabel)`:
-  - Filters claims by clearance (preventing canary token inclusion in unprivileged prompts).
-  - Prompts NVIDIA Nemotron Ultra 550B with strict citation-grounding instructions.
-  - Provides deterministic offline fallback when `NVIDIA_API_KEY` is not present or API call fails.
-- [ ] **Step 4: Register `POST /api/v1/llm/query` endpoint in `endpoints.py`**
-  Expose the query endpoint with Pydantic request model (`query`, optional `clearance`).
-- [ ] **Step 5: Run tests and verify all pass**
-  `PYTHONPATH=. pytest tests/test_nemotron_integration.py -v`
-- [ ] **Step 6: Commit changes**
-  `git commit -am "feat(api): add NVIDIA Nemotron grounded architecture query endpoint"`
+- [x] **Step 1: Write test for `POST /api/v1/llm/query`**
+- [x] **Step 2: Run test to confirm failure**
+- [x] **Step 3: Implement `query_nemotron_architecture` in `nemotron_client.py`**
+- [x] **Step 4: Register `POST /api/v1/llm/query` endpoint in `endpoints.py`**
+- [x] **Step 5: Run tests and verify all pass**
+- [x] **Step 6: Commit changes**
 
 ---
 
@@ -107,26 +78,11 @@
 - Modify: `frontend/src/components/SuccessorView.tsx`
 - Modify: `frontend/src/components/AppLayout.tsx`
 
-- [ ] **Step 1: Enhance `SuccessorView.tsx` with Technical Briefing Panel**
-  Add a discreet, obsidian glass card at the top of the Successor View:
-  - Header: `Technical Architecture Briefing` with badge `NVIDIA Nemotron Ultra 550B`.
-  - "Generate Executive Briefing" button calling `/api/v1/llm/synthesize` with loading spinner.
-  - Formatted markdown briefing display with verified citation links.
-  - "Query Architecture Ledger" input with 3 clean quick-chips:
-    - *"What breaks if Redis restarts?"*
-    - *"How do I unblock the backup cron?"*
-    - *"Who owns the Stripe webhook secrets?"*
-  - Answering area with citation tags linking directly to claims.
-- [ ] **Step 2: Add tactile card actions**
-  - Gotcha cards: "Acknowledge Hazard" button that toggles to a green checkmark with timestamp.
-  - Task & Decision cards: "Copy Command / Snippet" button using navigator.clipboard with toast notification.
-  - Add quick category filter pills at the top of the panes (`All Items`, `Gotchas`, `Accounts`, `Decisions`, `Backlog`).
-- [ ] **Step 3: Update `AppLayout.tsx` project label and author**
-  Update default project label to `Core Payment & Ledger API (Production)` and author to `Alice Chen (Principal Platform Engineer)`. Remove any toy demo phrasing.
-- [ ] **Step 4: Build frontend and verify no TypeScript or Vite errors**
-  `cd frontend && npm run build`
-- [ ] **Step 5: Commit changes**
-  `git commit -am "feat(ui): add professional Nemotron architecture copilot and tactile runway actions"`
+- [x] **Step 1: Enhance `SuccessorView.tsx` with Technical Briefing Panel**
+- [x] **Step 2: Add tactile card actions**
+- [x] **Step 3: Update `AppLayout.tsx` project label and author**
+- [x] **Step 4: Build frontend and verify no TypeScript or Vite errors**
+- [x] **Step 5: Commit changes**
 
 ---
 
@@ -136,10 +92,7 @@
 - All modified files
 - `frontend/dist/*`
 
-- [ ] **Step 1: Run full pytest test suite**
-  `PYTHONPATH=. pytest tests/ -v` (Assert all 34+ tests pass).
-- [ ] **Step 2: Verify live local endpoints**
-  Verify `/api/v1/successor/view`, `/api/v1/llm/status`, `/api/v1/llm/query`, `/api/v1/llm/synthesize`, and `/` root HTML response.
-- [ ] **Step 3: Push changes to GitHub repository**
-  `git push origin master`
-- [ ] **Step 4: Confirm Render auto-deploy or manual trigger readiness**
+- [x] **Step 1: Run full pytest test suite**
+- [x] **Step 2: Verify live local endpoints**
+- [x] **Step 3: Push changes to GitHub repository**
+- [x] **Step 4: Confirm Render auto-deploy or manual trigger readiness**
