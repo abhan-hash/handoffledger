@@ -75,3 +75,23 @@ def test_bounded_contradiction_check_flags_conflicts():
     states = {c.claim_id: c.state for c in resolved}
     assert states["c1"] == EvidenceState.CONFLICTING
     assert states["c2"] == EvidenceState.CONFLICTING
+
+
+def test_fintech_chunks_and_claims_extraction():
+    """Verify high-scale fintech infrastructure chunks extract with exact substring quotes."""
+    from backend.app.models.schemas import IngestedChunk, SourceType
+
+    chk = IngestedChunk(
+        chunk_id="chunk-fintech-01",
+        source_id="chat_ops.json",
+        source_type=SourceType.CHAT_MESSAGE,
+        author="Alice Chen",
+        timestamp="2026-11-09T10:00:00Z",
+        access_label=AccessLabel.INTERNAL,
+        content="Incident note: Stripe webhook retries can cause race conditions if the event timestamp is older than 5 minutes.",
+    )
+    claims = extract_claims_from_chunk(chk)
+    assert len(claims) >= 1
+    assert any("webhook" in c.entity_id or "gateway" in c.entity_id for c in claims)
+    for c in claims:
+        assert c.citations[0].quote_span in chk.content
