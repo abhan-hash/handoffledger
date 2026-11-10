@@ -33,7 +33,7 @@ app.add_middleware(
 app.include_router(api_router)
 
 
-@app.get("/api/v1/health")
+@app.api_route("/api/v1/health", methods=["GET", "HEAD"])
 def health_check():
     return {
         "status": "healthy",
@@ -49,7 +49,7 @@ if os.path.exists(frontend_dist):
     if os.path.exists(assets_dir):
         app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
 
-    @app.get("/{full_path:path}")
+    @app.api_route("/{full_path:path}", methods=["GET", "HEAD"])
     def serve_frontend(full_path: str):
         if full_path.startswith("api/"):
             raise HTTPException(status_code=404, detail="API route not found")
@@ -58,6 +58,6 @@ if os.path.exists(frontend_dist):
             return FileResponse(file_path)
         return FileResponse(os.path.join(frontend_dist, "index.html"))
 else:
-    @app.get("/")
+    @app.api_route("/", methods=["GET", "HEAD"])
     def root():
         return {"message": "HandoffLedger API is operational. Visit /docs for OpenAPI specs."}
