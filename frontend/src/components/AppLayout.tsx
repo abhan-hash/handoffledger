@@ -56,14 +56,14 @@ export interface AppLayoutProps {
 const DEFAULT_PROJECTS: ProjectOption[] = [
   {
     id: 'handoff-v1',
-    name: 'HandoffLedger v1_demo',
-    branch: 'main · synthetic',
+    name: 'Core Payment & Ledger API',
+    branch: 'main · production',
     status: 'verified',
-    claimsCount: 12,
+    claimsCount: 18,
   },
   {
     id: 'payments-service',
-    name: 'Payments & Billing Gateway',
+    name: 'Card Acquiring Gateway',
     branch: 'release/v2.4',
     status: 'in_progress',
     claimsCount: 18,
