@@ -123,76 +123,76 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
   const navItems = [
     {
-      group: 'DISCOVER & OVERVIEW',
+      group: 'GET STARTED',
       items: [
         {
           id: 'overview' as TabId,
-          label: 'Overview & Inspo',
+          label: 'Platform Overview',
           icon: Compass,
-          badge: 'Hero',
+          badge: 'Start Here',
           badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-          description: 'Elegostra-grade product overview & visual core',
+          description: 'How HandoffLedger stops team knowledge loss',
         },
       ],
     },
     {
-      group: 'KNOWLEDGE LEDGER',
+      group: 'FACTS & KNOWLEDGE',
       items: [
         {
           id: 'ledger' as TabId,
-          label: 'Claim Ledger',
+          label: 'Verified Facts',
           icon: Layers,
           badge: totalClaimsCount > 0 ? `${totalClaimsCount}` : undefined,
-          description: 'Atomic verified claims & evidence sources',
+          description: 'Every project decision backed by real code proof',
         },
         {
           id: 'staging' as TabId,
-          label: 'Reviewer Staging',
+          label: 'Review & Approve',
           icon: ShieldCheck,
-          badge: currentRole === 'reviewer' ? 'Lead Triage' : undefined,
+          badge: currentRole === 'reviewer' ? 'Lead Review' : undefined,
           badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-          description: 'Human-in-the-loop review & conflict triage',
+          description: 'Check, edit, and approve facts before sharing',
         },
         {
           id: 'heatmap' as TabId,
-          label: 'Risk Heatmap',
+          label: 'Knowledge Bottlenecks',
           icon: Activity,
-          badge: 'SPOK',
+          badge: 'Risk Map',
           badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-          description: 'Single point of knowledge risk matrix',
+          description: 'Find where you depend on only one person',
         },
       ],
     },
     {
-      group: 'HANDOVER RUNWAY',
+      group: 'TRANSITION & ONBOARDING',
       items: [
         {
           id: 'interview' as TabId,
-          label: 'Gap Interview',
+          label: 'Quick Exit Interview',
           icon: UserCheck,
-          badge: unresolvedGapsCount > 0 ? `${unresolvedGapsCount} gaps` : undefined,
+          badge: unresolvedGapsCount > 0 ? `${unresolvedGapsCount} to answer` : undefined,
           badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
-          description: 'Interactive extraction for departing lead',
+          description: '10 fast questions for the departing member',
         },
         {
           id: 'successor' as TabId,
-          label: 'Successor Runway',
+          label: 'Day-1 Starter Kit',
           icon: PlaneTakeoff,
-          badge: 'Day 1',
-          description: 'Role-filtered briefings & landmines',
+          badge: 'For New Hires',
+          description: 'Gotchas, accounts, decisions & next steps',
         },
       ],
     },
     {
-      group: 'VERIFICATION & AUDIT',
+      group: 'READINESS & TESTING',
       items: [
         {
           id: 'benchmark' as TabId,
-          label: 'Evaluation Delta',
+          label: 'Handover Test Score',
           icon: BarChart3,
-          badge: '+45%',
+          badge: '+45% Gain',
           badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-          description: 'Ground truth accuracy & canary defense',
+          description: 'Tested against 20 real onboarding questions',
         },
       ],
     },
@@ -207,13 +207,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     },
     {
       id: 'successor',
-      label: 'Successor',
+      label: 'New Incoming Member',
       icon: Eye,
       clearance: 'INTERNAL',
     },
     {
       id: 'reviewer',
-      label: 'Reviewer',
+      label: 'Team Lead (Reviewer)',
       icon: Lock,
       clearance: 'RESTRICTED',
     },
@@ -357,34 +357,31 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                     className="absolute right-0 mt-2 w-72 rounded-2xl bg-[#121524] backdrop-blur-2xl border border-white/15 shadow-[0_16px_40px_rgba(0,0,0,0.7)] p-4 z-50 text-zinc-200"
                   >
                     <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                      <span className="text-xs font-semibold text-zinc-200">Handover Quality Score</span>
+                      <span className="text-xs font-semibold text-zinc-200">Handover Completeness Score</span>
                       <span className="text-xs font-bold font-mono text-emerald-400">{qualityScore}%</span>
                     </div>
                     <div className="space-y-2.5 pt-3 text-xs">
                       <div className="flex items-center justify-between text-zinc-400">
-                        <span>Verified Citations</span>
-                        <span className="font-mono text-emerald-400 font-semibold">9 / 12 (75%)</span>
+                        <span>Code-Backed Facts</span>
+                        <span className="font-mono text-emerald-400 font-semibold">Verified Proof</span>
                       </div>
                       <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
-                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: '75%' }} />
+                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${qualityScore}%` }} />
                       </div>
 
                       <div className="flex items-center justify-between text-zinc-400 pt-1">
-                        <span>Mean SPOK Risk</span>
-                        <span className="font-mono text-cyan-400 font-semibold">0.42 (Controlled)</span>
-                      </div>
-                      <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
-                        <div className="h-full bg-cyan-500 rounded-full" style={{ width: '42%' }} />
+                        <span>Key-Person Dependency</span>
+                        <span className="font-mono text-cyan-400 font-semibold">Monitored</span>
                       </div>
 
                       <div className="flex items-center justify-between text-zinc-400 pt-1">
-                        <span>Canary Leak Risk</span>
-                        <span className="font-mono text-emerald-400 font-semibold">0 Detected</span>
+                        <span>Password & Secret Leaks</span>
+                        <span className="font-mono text-emerald-400 font-semibold">0 Detected (Safe)</span>
                       </div>
 
                       <div className="pt-2 text-[11px] text-zinc-400 border-t border-white/10 flex items-start gap-1.5">
                         <Info className="w-3.5 h-3.5 text-zinc-400 shrink-0 mt-0.5" />
-                        <span>Ready for formal sign-off once gap interview items are confirmed.</span>
+                        <span>Ready to finalize once remaining questions are confirmed.</span>
                       </div>
                     </div>
                   </motion.div>

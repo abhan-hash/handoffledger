@@ -53,8 +53,8 @@ export const RiskHeatmap: React.FC<RiskHeatmapProps> = ({ nodes, edges }) => {
       <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl glass-panel">
         <div className="flex items-center gap-2">
           <Activity className="w-4 h-4 text-blue-400" />
-          <span className="text-sm font-semibold text-gray-200">Knowledge-Risk Topography</span>
-          <span className="text-xs text-gray-400">({visibleNodes.length} active entities)</span>
+          <span className="text-sm font-semibold text-gray-200">Knowledge Bottlenecks & Dependencies</span>
+          <span className="text-xs text-gray-400">({visibleNodes.length} components analyzed)</span>
         </div>
 
         <button
@@ -62,7 +62,7 @@ export const RiskHeatmap: React.FC<RiskHeatmapProps> = ({ nodes, edges }) => {
           className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg border border-white/10 hover:border-white/20 bg-white/5 text-gray-300 transition-colors"
         >
           {hidePeripheral ? <Eye className="w-3.5 h-3.5 text-blue-400" /> : <EyeOff className="w-3.5 h-3.5 text-gray-400" />}
-          {hidePeripheral ? 'Hiding Peripheral Noise (In-Degree < 2)' : 'Showing All Low-Signal Nodes'}
+          {hidePeripheral ? 'Hiding Minor Components' : 'Showing All Components'}
         </button>
       </div>
 
@@ -90,7 +90,7 @@ export const RiskHeatmap: React.FC<RiskHeatmapProps> = ({ nodes, edges }) => {
                 </div>
 
                 <div className={`px-2.5 py-1 rounded-xl text-xs font-mono font-bold border ${getScoreColor(node.spok_score)}`}>
-                  SPOK: {(node.spok_score * 100).toFixed(0)}%
+                  Bottleneck: {(node.spok_score * 100).toFixed(0)}%
                 </div>
               </div>
 
@@ -98,7 +98,7 @@ export const RiskHeatmap: React.FC<RiskHeatmapProps> = ({ nodes, edges }) => {
               <div className="space-y-2 mt-4 text-xs font-mono">
                 <div>
                   <div className="flex justify-between text-gray-400 mb-1">
-                    <span className="flex items-center gap-1"><GitCommit className="w-3 h-3 text-blue-400" /> Concentration:</span>
+                    <span className="flex items-center gap-1"><GitCommit className="w-3 h-3 text-blue-400" /> Solo Author Share:</span>
                     <span className="text-gray-200">{(node.concentration * 100).toFixed(0)}%</span>
                   </div>
                   {getProgressBar(node.concentration, 'bg-blue-500')}
@@ -106,7 +106,7 @@ export const RiskHeatmap: React.FC<RiskHeatmapProps> = ({ nodes, edges }) => {
 
                 <div>
                   <div className="flex justify-between text-gray-400 mb-1">
-                    <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-amber-400" /> Stale Decay:</span>
+                    <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-amber-400" /> Time Without Updates:</span>
                     <span className="text-gray-200">{(node.stale_decay * 100).toFixed(0)}%</span>
                   </div>
                   {getProgressBar(node.stale_decay, 'bg-amber-500')}
@@ -114,7 +114,7 @@ export const RiskHeatmap: React.FC<RiskHeatmapProps> = ({ nodes, edges }) => {
 
                 <div>
                   <div className="flex justify-between text-gray-400 mb-1">
-                    <span className="flex items-center gap-1"><AlertOctagon className="w-3 h-3 text-rose-400" /> Evidence Weakness:</span>
+                    <span className="flex items-center gap-1"><AlertOctagon className="w-3 h-3 text-rose-400" /> Missing Documentation:</span>
                     <span className="text-gray-200">{(node.evidence_weakness * 100).toFixed(0)}%</span>
                   </div>
                   {getProgressBar(node.evidence_weakness, 'bg-rose-500')}
@@ -123,16 +123,16 @@ export const RiskHeatmap: React.FC<RiskHeatmapProps> = ({ nodes, edges }) => {
 
               {/* In-Degree & Priority Footer */}
               <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-gray-400 font-mono">
-                <span>In-Degree: <strong className="text-gray-200">{node.in_degree}</strong></span>
-                <span>Priority Index: <strong className="text-blue-400">{node.interview_priority.toFixed(2)}</strong></span>
+                <span>Used by: <strong className="text-gray-200">{node.in_degree} systems</strong></span>
+                <span>Interview Priority: <strong className="text-blue-400">{node.interview_priority.toFixed(2)}</strong></span>
               </div>
 
               {/* Dependencies Drill-Down */}
               {isSelected && (
                 <div className="mt-3 pt-2 text-xs text-gray-400 animate-in fade-in">
-                  <p className="font-semibold text-gray-300 mb-1">Dependent Components ({incomingDeps.length}):</p>
+                  <p className="font-semibold text-gray-300 mb-1">Components Relying on This ({incomingDeps.length}):</p>
                   {incomingDeps.length === 0 ? (
-                    <span className="italic text-gray-500">No dependent components registered</span>
+                    <span className="italic text-gray-500">No other components directly depend on this.</span>
                   ) : (
                     <ul className="list-disc pl-4 space-y-0.5 font-mono text-[11px] text-blue-300">
                       {incomingDeps.map((e, idx) => (

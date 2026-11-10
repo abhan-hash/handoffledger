@@ -78,17 +78,23 @@ export const ClaimLedger: React.FC<ClaimLedgerProps> = ({
         <div className="flex flex-wrap items-center gap-1.5">
           <Filter className="w-4 h-4 text-gray-400 mr-1" />
           <span className="text-xs font-semibold text-gray-300 mr-2">Filter:</span>
-          {['all', 'verified', 'inferred', 'conflicting', 'missing_evidence'].map(st => (
+          {[
+            { id: 'all', label: 'ALL FACTS' },
+            { id: 'verified', label: '✓ VERIFIED IN CODE' },
+            { id: 'inferred', label: 'NEEDS CHECK' },
+            { id: 'conflicting', label: '⚠ CONFLICTING' },
+            { id: 'missing_evidence', label: 'MISSING PROOF' },
+          ].map(tab => (
             <button
-              key={st}
-              onClick={() => setSelectedState(st)}
+              key={tab.id}
+              onClick={() => setSelectedState(tab.id)}
               className={`px-3 py-1.5 text-xs rounded-xl font-medium transition-all ${
-                selectedState === st
+                selectedState === tab.id
                   ? 'bg-blue-600 text-white font-semibold shadow-sm'
                   : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
               }`}
             >
-              {st.replace('_', ' ').toUpperCase()}
+              {tab.label}
             </button>
           ))}
         </div>
@@ -96,13 +102,13 @@ export const ClaimLedger: React.FC<ClaimLedgerProps> = ({
         <button
           onClick={() => {
             onVerify()
-            toast.success('Ran deterministic Python verifier pass')
+            toast.success('Checked code proof for all facts')
           }}
           disabled={isLoading}
           className="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-subtle-glow active:scale-95 disabled:opacity-50"
         >
           <Play className="w-3.5 h-3.5 fill-current" />
-          {isLoading ? 'Verifying...' : 'Run Python Verifier Pass'}
+          {isLoading ? 'Checking Code...' : 'Check Code Proof'}
         </button>
       </div>
 
@@ -110,7 +116,7 @@ export const ClaimLedger: React.FC<ClaimLedgerProps> = ({
       <div className="grid grid-cols-1 gap-3.5">
         {filtered.length === 0 ? (
           <div className="p-8 text-center glass-panel rounded-2xl text-gray-400 text-sm">
-            No claims match the selected filter.
+            No facts match the selected filter.
           </div>
         ) : (
           filtered.map((claim, idx) => {

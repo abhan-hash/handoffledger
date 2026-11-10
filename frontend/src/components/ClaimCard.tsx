@@ -70,14 +70,14 @@ export const ClaimCard: React.FC<ClaimCardProps> = ({
         return (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_12px_-3px_rgba(16,185,129,0.2)]">
             <CheckCircle2 className="w-3.5 h-3.5" />
-            Verified
+            Verified in Code
           </span>
         )
       case 'inferred':
         return (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-[0_0_12px_-3px_rgba(245,158,11,0.2)]">
             <AlertTriangle className="w-3.5 h-3.5" />
-            Inferred
+            Needs Check
           </span>
         )
       case 'conflicting':
@@ -92,7 +92,7 @@ export const ClaimCard: React.FC<ClaimCardProps> = ({
         return (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide bg-zinc-500/10 text-zinc-400 border border-zinc-500/20">
             <HelpCircle className="w-3.5 h-3.5" />
-            Missing Evidence
+            Missing Proof
           </span>
         )
     }
@@ -191,7 +191,7 @@ export const ClaimCard: React.FC<ClaimCardProps> = ({
         {/* Mini SPOK Progress Bar */}
         <div className="flex items-center gap-2.5 flex-1 max-w-xs">
           <Activity className="w-3.5 h-3.5 text-gray-400" />
-          <span className="text-[11px] font-mono text-gray-400 font-medium">SPOK:</span>
+          <span className="text-[11px] font-mono text-gray-400 font-medium">Bottleneck:</span>
           
           <div className="relative h-1.5 flex-1 rounded-full bg-white/[0.06] overflow-hidden">
             <motion.div
@@ -209,7 +209,7 @@ export const ClaimCard: React.FC<ClaimCardProps> = ({
 
         {/* Expand Indicator */}
         <div className="flex items-center gap-1 text-[11px] font-mono text-gray-400 group-hover:text-blue-400 transition-colors">
-          <span>{citations.length} {citations.length === 1 ? 'citation' : 'citations'}</span>
+          <span>{citations.length} {citations.length === 1 ? 'proof quote' : 'proof quotes'}</span>
           <motion.div
             animate={{ rotate: isExpanded ? 90 : 0 }}
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
@@ -235,11 +235,11 @@ export const ClaimCard: React.FC<ClaimCardProps> = ({
           >
             <div className="mt-3.5 pt-3.5 border-t border-white/[0.06] space-y-2.5">
               <span className="text-[10px] font-mono uppercase tracking-wider text-gray-400 flex items-center gap-1">
-                <ExternalLink className="w-3 h-3 text-blue-400" /> Verbatim Source Proof
+                <ExternalLink className="w-3 h-3 text-blue-400" /> Source Quote & Code Proof
               </span>
 
               {citations.length === 0 ? (
-                <p className="text-xs text-zinc-400 italic">No direct citations recorded for this claim.</p>
+                <p className="text-xs text-zinc-400 italic">No direct quotes found yet for this fact.</p>
               ) : (
                 citations.map((c, i) => (
                   <div
@@ -247,7 +247,7 @@ export const ClaimCard: React.FC<ClaimCardProps> = ({
                     className="p-2.5 rounded-xl bg-black/40 border border-white/[0.05] text-xs font-mono text-gray-300 space-y-1"
                   >
                     <div className="text-[10px] text-blue-400 flex items-center justify-between">
-                      <span>Chunk ID: {c.chunk_id}</span>
+                      <span>Source File: {c.chunk_id}</span>
                     </div>
                     <blockquote className="border-l-2 border-blue-500/40 pl-2.5 italic text-gray-300 text-[11px]">
                       "{c.quote_span}"
@@ -265,7 +265,7 @@ export const ClaimCard: React.FC<ClaimCardProps> = ({
         <div className="mt-3.5 pt-3.5 border-t border-purple-500/20 bg-purple-950/20 -mx-4 -mb-4 p-3.5 rounded-b-2xl flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-purple-400" />
-            <span className="text-xs font-semibold text-purple-300">Lead Review Action:</span>
+            <span className="text-xs font-semibold text-purple-300">Team Lead Decision:</span>
             {reviewerApproved && (
               <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                 ✓ Approved
@@ -313,14 +313,14 @@ export const ClaimCard: React.FC<ClaimCardProps> = ({
                   type="text"
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
-                  placeholder="Corrected claim statement..."
+                  placeholder="Corrected fact statement..."
                   className="px-2.5 py-1 text-xs rounded-lg bg-black/60 border border-white/20 text-white flex-1 focus:outline-none focus:border-purple-400"
                 />
                 <input
                   type="text"
                   value={editNotes}
                   onChange={(e) => setEditNotes(e.target.value)}
-                  placeholder="Reviewer note..."
+                  placeholder="Reviewer note / reason..."
                   className="px-2.5 py-1 text-xs rounded-lg bg-black/60 border border-white/20 text-white w-32 focus:outline-none focus:border-purple-400"
                 />
                 <button

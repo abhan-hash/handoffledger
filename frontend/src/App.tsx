@@ -105,7 +105,7 @@ export default function App() {
       newClearance = 'INTERNAL'
     }
     setClearance(newClearance)
-    toast.info(`Switched role to ${role === 'departing' ? 'Departing Member' : role === 'reviewer' ? 'Reviewer' : 'Successor'} (${newClearance})`)
+    toast.info(`Switched view to ${role === 'departing' ? 'Departing Member' : role === 'reviewer' ? 'Team Lead (Reviewer)' : 'Incoming Member'} (${newClearance})`)
   }
 
   const handleVerify = async () => {
@@ -113,11 +113,11 @@ export default function App() {
     try {
       const res = await fetch('/api/v1/verify', { method: 'POST' })
       if (res.ok) {
-        toast.success('Ran deterministic Python verification pass across all claims')
+        toast.success('Verified all facts against source files')
         await loadData()
       }
     } catch (err) {
-      toast.error('Failed to run verifier pass')
+      toast.error('Failed to verify facts')
     } finally {
       setIsLoading(false)
     }
@@ -134,10 +134,10 @@ export default function App() {
       if (res.ok) {
         const data = await res.json()
         setEvalData(data)
-        toast.success(`Evaluated 20 Golden Questions: Accuracy ${Math.round(data.successor_ledger_accuracy * 100)}% (+${Math.round(data.accuracy_delta * 100)}% gain). Zero Canary Leaks.`)
+        toast.success(`Tested 20 Questions: Accuracy ${Math.round(data.successor_ledger_accuracy * 100)}% (+${Math.round(data.accuracy_delta * 100)}% boost). 0 Leaked Passwords.`)
       }
     } catch (err) {
-      toast.error('Failed to execute evaluation suite')
+      toast.error('Failed to run test suite')
     } finally {
       setIsLoading(false)
     }
@@ -165,13 +165,13 @@ export default function App() {
         }),
       })
       if (res.ok) {
-        toast.success(`Review decision '${action}' recorded for claim #${claimId}`)
+        toast.success(`Decision saved: '${action}' for item #${claimId}`)
         await loadData()
       } else {
-        toast.error('Failed to record review action')
+        toast.error('Failed to save decision')
       }
     } catch (err) {
-      toast.error('Network error during review decision')
+      toast.error('Network error during decision save')
     } finally {
       setIsLoading(false)
     }
@@ -186,11 +186,11 @@ export default function App() {
       const url = `/api/v1/interview/respond?question_id=${encodeURIComponent(questionId)}&action=${action}${text ? `&response_text=${encodeURIComponent(text)}` : ''}`
       const res = await fetch(url, { method: 'POST' })
       if (res.ok) {
-        toast.success(`Recorded response for question #${questionId}`)
+        toast.success(`Saved answer for gap question #${questionId}`)
         await loadData()
       }
     } catch (err) {
-      toast.error('Error submitting response')
+      toast.error('Error submitting answer')
     }
   }
 
@@ -198,11 +198,11 @@ export default function App() {
     try {
       const res = await fetch('/api/v1/ingest/synthetic', { method: 'POST' })
       if (res.ok) {
-        toast.success('Reset database with v1_demo synthetic dataset')
+        toast.success('Reset demo with fresh sample project data')
         await loadData()
       }
     } catch (err) {
-      toast.error('Failed to reset demo dataset')
+      toast.error('Failed to reset sample dataset')
     }
   }
 

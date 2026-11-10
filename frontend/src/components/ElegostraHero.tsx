@@ -65,19 +65,19 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
         {/* Decorative Pill Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-6 shadow-sm">
           <span className={`w-2 h-2 rounded-full ${backendOnline ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-          Verifiable Knowledge Handover & SPOK Risk Engine ({viewerClearance})
+          Verified Knowledge Handover & Dependency Risk Engine ({viewerClearance})
         </div>
 
         {/* Hero Title */}
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-[1.08]">
-          Connecting team activity to verifiable continuity
+          Never lose critical project knowledge when someone leaves
         </h1>
 
         {/* Hero Subtitle */}
         <p className="mt-5 text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-          HandoffLedger reconstructs project state from raw git commits and chat logs,
-          verifies atomic claim citations, calculates single-point-of-knowledge risk,
-          and guarantees zero canary credential leakage.
+          HandoffLedger turns scattered commits, chats, and task boards into verified facts.
+          Spot where only one person holds critical knowledge, interview them on exact gaps,
+          and hand over a clean Day-1 starter kit without leaking passwords.
         </p>
 
         {/* Hero Pill Action Buttons */}
@@ -87,7 +87,7 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
             className="px-7 py-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs tracking-wide shadow-lg shadow-emerald-500/20 active:scale-[0.97] transition-all duration-150 flex items-center gap-2"
           >
             <Layers className="w-4 h-4 text-zinc-950" />
-            Explore Claim Ledger ({claims.length} Claims)
+            Browse Verified Facts ({claims.length} Items)
           </button>
 
           <button
@@ -95,17 +95,17 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
             className="px-7 py-3.5 rounded-full bg-white/10 hover:bg-white/15 text-white border border-white/15 font-semibold text-xs tracking-wide shadow-sm active:scale-[0.97] transition-all duration-150 flex items-center gap-2"
           >
             <Activity className="w-4 h-4 text-emerald-400" />
-            View SPOK Heatmap ({nodes.length} Entities)
+            Spot Bottlenecks ({nodes.length} Components)
           </button>
 
           <button
             onClick={onVerify}
             disabled={isVerifying}
             className="px-5 py-3.5 rounded-full bg-white/5 hover:bg-white/10 text-zinc-300 font-medium text-xs border border-white/10 active:scale-[0.97] transition-all duration-150 flex items-center gap-1.5"
-            title="Re-run deterministic citation verifier"
+            title="Verify source code citations for every fact"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isVerifying ? 'animate-spin text-emerald-400' : ''}`} />
-            <span>Verify Pipeline</span>
+            <span>Check Code Proof</span>
           </button>
         </div>
 
@@ -141,10 +141,10 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
             <div className="w-full h-full rounded-full border-4 border-white/30 flex items-center justify-center relative overflow-hidden backdrop-blur-sm">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.4),transparent_60%)]" />
               <div className="text-center text-white relative z-10 space-y-0.5">
-                <span className="text-[10px] font-mono tracking-widest uppercase opacity-85">SPOK Index</span>
+                <span className="text-[10px] font-mono tracking-widest uppercase opacity-85">Bottleneck Risk</span>
                 <div className="text-4xl font-extrabold font-mono tracking-tight">{peakSpok.toFixed(2)}</div>
                 <div className="text-[10px] font-semibold bg-white/20 px-2 py-0.5 rounded-full inline-block backdrop-blur-md">
-                  Single Point
+                  Key Person
                 </div>
               </div>
             </div>
@@ -164,7 +164,7 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
               <span className="text-[10px] font-mono text-zinc-400">git:4f2a</span>
             </div>
             <div className="mt-1.5 text-xs font-semibold text-zinc-100 line-clamp-2">
-              PostgreSQL 16 on port 5432 (Migrated from SQLite)
+              PostgreSQL 16 on port 5432 (Verified in Git)
             </div>
           </motion.div>
 
@@ -177,12 +177,12 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
           >
             <div className="flex items-center justify-between gap-2">
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30 flex items-center gap-1">
-                <Shield className="w-3 h-3" /> Canary Guard
+                <Shield className="w-3 h-3" /> Secret Shield
               </span>
               <span className="text-[10px] font-mono text-emerald-400 font-bold">0 Leaks</span>
             </div>
             <div className="mt-1.5 text-xs font-semibold text-zinc-100">
-              Zero Canary Disclosures on Held-Out Negative Probes
+              Passwords & Private Keys Blocked from Handover
             </div>
           </motion.div>
 
@@ -193,10 +193,10 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
             className="absolute bottom-6 left-4 sm:left-20 p-3.5 rounded-2xl bg-[#141829]/90 border border-white/15 backdrop-blur-xl shadow-2xl text-left min-w-[170px]"
           >
             <div className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
-              Handover Completeness
+              Handover Readiness
             </div>
             <div className="text-2xl font-bold font-mono text-white mt-0.5">
-              {qualityScore}% Score
+              {qualityScore}% Ready
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden mt-1.5">
               <div
@@ -217,10 +217,10 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
               Exit Interview
             </div>
             <div className="text-sm font-bold text-purple-400 flex items-center justify-between mt-1">
-              <span>{unresolvedGaps} Critical Gaps</span>
+              <span>{unresolvedGaps} Knowledge Gaps</span>
               <ChevronRight className="w-4 h-4 text-purple-400" />
             </div>
-            <div className="text-[10px] text-zinc-400 mt-0.5">Draft-and-verify recognition</div>
+            <div className="text-[10px] text-zinc-400 mt-0.5">Quick yes/no gap review</div>
           </motion.div>
         </div>
       </section>
@@ -232,13 +232,13 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end pb-4 border-b border-white/10">
           <div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
-              Smarter tools for team continuity & knowledge retention
+              Everything a team needs to ensure seamless handovers
             </h2>
           </div>
           <div>
             <p className="text-zinc-400 text-sm leading-relaxed">
-              Replace subjective handover notes with checkable claims, automated
-              SPOK bottleneck detection, and security-lattice filtered successor views.
+              Replace messy docs and hasty slack messages with verified facts, automated
+              bottleneck alerts, and clean Day-1 starter kits.
             </p>
           </div>
         </div>
@@ -251,17 +251,17 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
               <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
                 <Activity className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-white">SPOK Risk Engine</h3>
+              <h3 className="text-lg font-bold text-white">Knowledge Bottleneck Detector</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Single-point-of-knowledge score computed deterministically from author concentration,
-                time decay half-life (60 days), and evidence weakness penalties.
+                Spots code and systems that only one person understands, so you know exactly
+                what will break if they leave.
               </p>
             </div>
 
             {/* Tactile Preview Widget: Fluid Progress & Slider */}
             <div className="p-4 rounded-2xl bg-black/40 border border-white/10 shadow-sm space-y-3">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-zinc-300">Author Concentration ($C_n$)</span>
+                <span className="font-semibold text-zinc-300">Solo Contributor Share</span>
                 <span className="font-mono font-bold text-emerald-400">{Math.round(sliderConcentration * 100)}%</span>
               </div>
               <input
@@ -274,7 +274,7 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
                 className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
               />
               <div className="flex items-center justify-between text-[11px] pt-1 border-t border-white/10">
-                <span className="text-zinc-400">Resulting Node SPOK</span>
+                <span className="text-zinc-400">Calculated Bottleneck Risk</span>
                 <span className="font-mono font-bold text-white">{liveSpok.toFixed(2)}</span>
               </div>
             </div>
@@ -286,17 +286,17 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
               <div className="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
                 <Lock className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-white">Lattice Clearance & Canary</h3>
+              <h3 className="text-lg font-bold text-white">Role Permissions & Secret Shield</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Enforces pre-generation clearance (PUBLIC &lt; INTERNAL &lt; RESTRICTED).
-                Inaccessible items render as structural stubs with zero disclosure.
+                Ensures newcomers only see what they're cleared for. Passwords, production keys,
+                and private data are never leaked into handovers.
               </p>
             </div>
 
             {/* Tactile Preview Widget: Card with Clearance Switch */}
             <div className="p-4 rounded-2xl bg-black/40 border border-white/10 shadow-sm space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-zinc-300">Simulate Clearance</span>
+                <span className="text-xs font-semibold text-zinc-300">Test Role Clearance</span>
                 <div className="flex gap-1 p-0.5 bg-white/10 rounded-lg text-[10px] font-semibold">
                   <button
                     onClick={() => setDemoClearance('PUBLIC')}
@@ -316,7 +316,7 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
               <div className="p-3 rounded-xl bg-black/60 border border-white/10 text-xs font-mono">
                 {demoClearance === 'PUBLIC' ? (
                   <span className="text-zinc-400 italic">
-                    [RESTRICTED CLAIM: Access Clearance Required. Contact Admin.]
+                    [LOCKED INFO: Access Clearance Required. Contact Team Lead.]
                   </span>
                 ) : (
                   <span className="text-purple-400 font-semibold">
@@ -333,10 +333,10 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
               <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
                 <PlaneTakeoff className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-white">Successor Runway View</h3>
+              <h3 className="text-lg font-bold text-white">Day-1 Starter Kit for Newcomers</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                4-pane action dashboard: Active Landmines & Workarounds, Account Ownership,
-                Architecture Decisions, and Immediate Next Actions.
+                A clean 4-part dashboard giving newcomers everything they need on Day 1: gotchas,
+                key accounts, major decisions, and next steps.
               </p>
             </div>
 
@@ -344,7 +344,7 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
             <div className="p-4 rounded-2xl bg-black/40 border border-white/10 shadow-sm space-y-2.5">
               <input
                 type="text"
-                placeholder="Filter claims..."
+                placeholder="Filter facts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-2.5 py-1 text-xs bg-white/5 border border-white/10 text-white rounded-lg focus:outline-none focus:border-blue-400"
@@ -382,14 +382,14 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
             {/* Left Content */}
             <div className="space-y-5">
               <span className="text-xs font-mono font-bold tracking-wider uppercase text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 inline-block">
-                Held-Out Benchmark Harness
+                Handover Readiness Test
               </span>
               <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
-                Objective evaluation with zero canary disclosures
+                Proven 45% faster onboarding with zero leaked secrets
               </h2>
               <p className="text-zinc-400 text-sm leading-relaxed max-w-lg">
-                We benchmark handover completeness against 20 pre-written ground truth questions on fixed synthetic release <strong className="text-white">v1_demo</strong>.
-                Successors achieve a <strong className="text-emerald-400">+45.0% accuracy gain</strong> with an <strong className="text-purple-400">82.0% token reduction</strong>.
+                We tested HandoffLedger against 20 real onboarding questions on our sample codebase.
+                Newcomers find answers <strong className="text-emerald-400">45% faster</strong> and read <strong className="text-purple-400">82% less text</strong> than digging through raw commits and docs.
               </p>
 
               <div className="pt-2 flex flex-wrap items-center gap-3">
@@ -397,13 +397,13 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
                   onClick={() => onNavigateTab('benchmark')}
                   className="px-6 py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs tracking-wide active:scale-[0.97] transition-all shadow-lg shadow-emerald-500/20"
                 >
-                  View 20-Question Delta
+                  View Test Results (20 Questions)
                 </button>
                 <button
                   onClick={onRunEval}
                   className="px-6 py-3 rounded-full bg-white/10 hover:bg-white/15 text-white font-medium text-xs border border-white/10 active:scale-[0.97] transition-all"
                 >
-                  Run Dynamic Benchmark Test
+                  Run Test Now
                 </button>
               </div>
 
@@ -415,21 +415,21 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
                   onClick={() => onRoleChange('departing')}
                   className="underline hover:text-white"
                 >
-                  Leaver
+                  Departing Member
                 </button>
                 <span>·</span>
                 <button
                   onClick={() => onRoleChange('successor')}
                   className="underline hover:text-white"
                 >
-                  Successor
+                  Incoming Member
                 </button>
                 <span>·</span>
                 <button
                   onClick={() => onRoleChange('reviewer')}
                   className="underline hover:text-white"
                 >
-                  Auditor
+                  Team Lead
                 </button>
               </div>
             </div>
@@ -441,13 +441,13 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
                 className="w-72 sm:w-80 p-5 rounded-2xl bg-gradient-to-br from-indigo-900/60 to-purple-900/40 border border-white/15 backdrop-blur-xl shadow-2xl relative z-20 space-y-3"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-purple-300">ADMIN CANARY VAULT</span>
+                  <span className="text-[11px] font-mono text-purple-300">SECRET PROTECTION</span>
                   <Lock className="w-4 h-4 text-purple-400" />
                 </div>
-                <div className="text-xl font-bold font-mono text-white">CANARY_ASSERTION</div>
+                <div className="text-xl font-bold font-mono text-white">SAFETY VERIFIED</div>
                 <div className="p-2.5 rounded-lg bg-black/40 border border-white/10 font-mono text-xs text-emerald-400 flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>0 Leakage in Context Sinks</span>
+                  <span>0 Leaked Passwords or Keys</span>
                 </div>
               </motion.div>
 
@@ -455,9 +455,9 @@ export const ElegostraHero: React.FC<ElegostraHeroProps> = ({
                 whileHover={{ y: -4 }}
                 className="hidden sm:block absolute -top-4 -right-2 w-64 p-4 rounded-2xl bg-gradient-to-tr from-amber-600/30 to-orange-500/20 border border-amber-500/30 backdrop-blur-md z-10"
               >
-                <span className="text-[10px] font-mono text-amber-300">DELTA EVALUATION</span>
+                <span className="text-[10px] font-mono text-amber-300">ONBOARDING BOOST</span>
                 <div className="text-2xl font-bold font-mono text-amber-400 mt-1">+45.0%</div>
-                <div className="text-[11px] text-zinc-300 mt-0.5">Accuracy gain vs raw commits</div>
+                <div className="text-[11px] text-zinc-300 mt-0.5">Faster answer lookup vs raw docs</div>
               </motion.div>
             </div>
           </div>

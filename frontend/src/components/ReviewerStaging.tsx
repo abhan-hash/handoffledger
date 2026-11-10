@@ -60,13 +60,13 @@ export const ReviewerStaging: React.FC<ReviewerStagingProps> = ({
   const handleBatchApproveVerified = () => {
     const unapprovedVerified = verifiedClaims.filter(c => !c.reviewer_approved)
     if (unapprovedVerified.length === 0) {
-      toast.info('All verified claims are already approved.')
+      toast.info('All verified facts are already approved.')
       return
     }
     unapprovedVerified.forEach(c => {
-      onReviewDecide(c.claim_id, 'approve', 'Batch approved verified claim')
+      onReviewDecide(c.claim_id, 'approve', 'Batch approved verified fact')
     })
-    toast.success(`Batch approved ${unapprovedVerified.length} verified claims!`)
+    toast.success(`Batch approved ${unapprovedVerified.length} verified facts!`)
   }
 
   return (
@@ -79,13 +79,13 @@ export const ReviewerStaging: React.FC<ReviewerStagingProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-white">Reviewer Staging & Human-in-the-Loop Triage</h2>
+              <h2 className="text-base font-bold text-white">Review & Approve Knowledge Handover</h2>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
-                CLEARANCE: {clearance}
+                LEAD ACCESS: {clearance}
               </span>
             </div>
             <p className="text-xs text-zinc-400 mt-0.5">
-              Review, edit, or approve generated claims before successor clearance projection. Nothing leaves without human sign-off.
+              Review, edit, or approve all generated facts before sharing with incoming team members. Nothing is handed over without human sign-off.
             </p>
           </div>
         </div>
@@ -96,7 +96,7 @@ export const ReviewerStaging: React.FC<ReviewerStagingProps> = ({
           className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-500 disabled:opacity-40 text-white text-xs font-semibold shadow-lg shadow-purple-600/20 active:scale-95 transition-all"
         >
           <Sparkles className="w-3.5 h-3.5" />
-          Auto-Approve All Verified ({verifiedClaims.filter(c => !c.reviewer_approved).length})
+          Auto-Approve Verified Facts ({verifiedClaims.filter(c => !c.reviewer_approved).length})
         </button>
       </div>
 
@@ -112,11 +112,11 @@ export const ReviewerStaging: React.FC<ReviewerStagingProps> = ({
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-rose-400 flex items-center gap-1.5">
-              <AlertOctagon className="w-3.5 h-3.5" /> Conflicting Contradictions
+              <AlertOctagon className="w-3.5 h-3.5" /> Conflicting Statements
             </span>
             <span className="text-lg font-bold font-mono text-white">{conflictingClaims.length}</span>
           </div>
-          <p className="text-[11px] text-zinc-400 mt-1">Requires manual reviewer resolution</p>
+          <p className="text-[11px] text-zinc-400 mt-1">Disagreements in docs or chats</p>
         </div>
 
         <div
@@ -129,11 +129,11 @@ export const ReviewerStaging: React.FC<ReviewerStagingProps> = ({
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-amber-400 flex items-center gap-1.5">
-              <AlertTriangle className="w-3.5 h-3.5" /> Pending Triage
+              <AlertTriangle className="w-3.5 h-3.5" /> Needs Review
             </span>
             <span className="text-lg font-bold font-mono text-white">{unapprovedClaims.length}</span>
           </div>
-          <p className="text-[11px] text-zinc-400 mt-1">Unapproved or inferred claims</p>
+          <p className="text-[11px] text-zinc-400 mt-1">Unapproved or estimated facts</p>
         </div>
 
         <div
@@ -146,11 +146,11 @@ export const ReviewerStaging: React.FC<ReviewerStagingProps> = ({
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-emerald-400 flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Verified Ground Truth
+              <CheckCircle2 className="w-3.5 h-3.5" /> Code-Verified Facts
             </span>
             <span className="text-lg font-bold font-mono text-white">{verifiedClaims.length}</span>
           </div>
-          <p className="text-[11px] text-zinc-400 mt-1">Verbatim substring proof confirmed</p>
+          <p className="text-[11px] text-zinc-400 mt-1">Proven directly in code and commits</p>
         </div>
       </div>
 
@@ -170,16 +170,16 @@ export const ReviewerStaging: React.FC<ReviewerStagingProps> = ({
               }`}
             >
               {mode === 'triage'
-                ? 'PENDING TRIAGE'
+                ? 'NEEDS REVIEW'
                 : mode === 'conflicts'
                 ? 'CONFLICTS ONLY'
                 : mode === 'verified'
-                ? 'VERIFIED'
-                : 'ALL CLAIMS'}
+                ? 'VERIFIED IN CODE'
+                : 'ALL FACTS'}
             </button>
           ))}
         </div>
-        <span className="text-xs font-mono text-zinc-400">Showing {filteredClaims.length} claims</span>
+        <span className="text-xs font-mono text-zinc-400">Showing {filteredClaims.length} facts</span>
       </div>
 
       {/* Claims List with Reviewer Controls */}
@@ -188,7 +188,7 @@ export const ReviewerStaging: React.FC<ReviewerStagingProps> = ({
           <div className="p-12 text-center glass-panel rounded-3xl text-zinc-400 text-sm space-y-2">
             <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto opacity-75" />
             <p className="font-semibold text-white">All Clear in this Category</p>
-            <p className="text-xs text-zinc-500">No claims currently require triage under the active filter.</p>
+            <p className="text-xs text-zinc-500">No facts currently require review under the active filter.</p>
           </div>
         ) : (
           filteredClaims.map((claim, idx) => {

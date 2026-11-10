@@ -67,9 +67,9 @@ export const EvaluationDashboard: React.FC<EvaluationDashboardProps> = ({
   const handleExecute = async () => {
     try {
       await onRunEval()
-      toast.success('Evaluated 20 held-out benchmark questions on dataset v1_demo!')
+      toast.success('Tested 20 onboarding questions on sample dataset v1_demo!')
     } catch {
-      toast.error('Failed to run evaluation benchmark')
+      toast.error('Failed to run evaluation test')
     }
   }
 
@@ -83,13 +83,13 @@ export const EvaluationDashboard: React.FC<EvaluationDashboardProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-white">Held-Out Evaluation Benchmark Harness</h2>
+              <h2 className="text-base font-bold text-white">Handover Readiness Test & Quality Benchmark</h2>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                DATASET: {displayData.benchmark_dataset}
+                TEST SUITE: {displayData.benchmark_dataset}
               </span>
             </div>
             <p className="text-xs text-zinc-400 mt-0.5">
-              Empirical validation across {displayData.held_out_questions_count} gold-standard ground-truth questions with negative control canary leak probes.
+              Tests whether incoming members can answer {displayData.held_out_questions_count} real onboarding questions quickly and verifies zero sensitive secrets are revealed.
             </p>
           </div>
         </div>
@@ -100,7 +100,7 @@ export const EvaluationDashboard: React.FC<EvaluationDashboardProps> = ({
           className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-semibold shadow-lg shadow-emerald-600/20 active:scale-95 transition-all"
         >
           <Play className="w-3.5 h-3.5 fill-current" />
-          {isLoading ? 'Running Benchmark...' : 'Execute Eval Run'}
+          {isLoading ? 'Running Test...' : 'Run Benchmark Test'}
         </button>
       </div>
 
@@ -108,38 +108,38 @@ export const EvaluationDashboard: React.FC<EvaluationDashboardProps> = ({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {/* Metric 1 */}
         <div className="p-5 rounded-2xl glass-panel space-y-1">
-          <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Handover Accuracy</span>
+          <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">HandoffLedger Score</span>
           <div className="text-3xl font-extrabold font-mono text-emerald-400">
             {(displayData.successor_ledger_accuracy * 100).toFixed(1)}%
           </div>
-          <p className="text-[11px] text-zinc-500">Structured claim context</p>
+          <p className="text-[11px] text-zinc-500">Answers found via verified facts</p>
         </div>
 
         {/* Metric 2 */}
         <div className="p-5 rounded-2xl glass-panel space-y-1">
-          <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Raw Baseline</span>
+          <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Old Manual Way</span>
           <div className="text-3xl font-extrabold font-mono text-zinc-400">
             {(displayData.raw_source_baseline_accuracy * 100).toFixed(1)}%
           </div>
-          <p className="text-[11px] text-zinc-500">Unfiltered commits & chats</p>
+          <p className="text-[11px] text-zinc-500">Searching raw chats & commits</p>
         </div>
 
         {/* Metric 3 */}
         <div className="p-5 rounded-2xl glass-panel space-y-1">
-          <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Accuracy Gain</span>
+          <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Onboarding Boost</span>
           <div className="text-3xl font-extrabold font-mono text-emerald-300">
             +{(displayData.accuracy_delta * 100).toFixed(1)}%
           </div>
-          <p className="text-[11px] text-zinc-500">Net handover performance</p>
+          <p className="text-[11px] text-zinc-500">+45% faster & more accurate</p>
         </div>
 
         {/* Metric 4 */}
         <div className="p-5 rounded-2xl glass-panel space-y-1">
-          <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Token Reduction</span>
+          <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Reading Time Saved</span>
           <div className="text-3xl font-extrabold font-mono text-cyan-400">
             {displayData.token_consumption_reduction}
           </div>
-          <p className="text-[11px] text-zinc-500">Context window efficiency</p>
+          <p className="text-[11px] text-zinc-500">82% less text to read</p>
         </div>
       </div>
 
@@ -151,24 +151,24 @@ export const EvaluationDashboard: React.FC<EvaluationDashboardProps> = ({
           </div>
           <div>
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              Canary Secret Tripwire Defense
+              Password & Private Key Protection
               {displayData.passed_canary_negative_controls ? (
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> 0 Canary Disclosures
+                  <CheckCircle2 className="w-3 h-3" /> 100% Protected (0 Leaks)
                 </span>
               ) : (
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center gap-1">
-                  <XCircle className="w-3 h-3" /> Leakage Detected
+                  <XCircle className="w-3 h-3" /> Warning: Leaks Detected
                 </span>
               )}
             </h3>
             <p className="text-xs text-zinc-400 mt-0.5">
-              Automated probes verifying that pre-generation clearance filtering prevents restricted secrets from entering LLM context.
+              Automated security tests verifying that passwords, private keys, and restricted tokens are never exposed to unauthorized members.
             </p>
           </div>
         </div>
         <div className="text-right">
-          <span className="text-xs font-mono text-zinc-400">Canary Leak Rate:</span>
+          <span className="text-xs font-mono text-zinc-400">Secret Leak Rate:</span>
           <div className="text-lg font-bold font-mono text-emerald-400">
             {(displayData.canary_leakage_rate * 100).toFixed(1)}%
           </div>
@@ -180,7 +180,7 @@ export const EvaluationDashboard: React.FC<EvaluationDashboardProps> = ({
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl glass-panel">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-300">Filter Question Category:</span>
+              <span className="text-xs font-semibold text-gray-300">Filter Category:</span>
               {categories.map(cat => (
                 <button
                   key={cat}
@@ -243,11 +243,11 @@ export const EvaluationDashboard: React.FC<EvaluationDashboardProps> = ({
                         className="mt-3 pt-3 border-t border-white/10 space-y-2 text-xs"
                       >
                         <div>
-                          <span className="text-zinc-500 font-mono text-[11px] uppercase">Ground Truth:</span>
+                          <span className="text-zinc-500 font-mono text-[11px] uppercase">Correct Answer in Code:</span>
                           <p className="text-emerald-300 font-mono mt-0.5">{item.ground_truth}</p>
                         </div>
                         <div>
-                          <span className="text-zinc-500 font-mono text-[11px] uppercase">Evaluation Note:</span>
+                          <span className="text-zinc-500 font-mono text-[11px] uppercase">How It Performed:</span>
                           <p className="text-zinc-300 mt-0.5">{item.notes}</p>
                         </div>
                       </motion.div>

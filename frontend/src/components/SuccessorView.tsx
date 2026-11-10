@@ -26,7 +26,7 @@ export const SuccessorView: React.FC<SuccessorViewProps> = ({
     const now = new Date().toISOString()
     setAcknowledged(true)
     setAckTimestamp(now)
-    toast.success('Handover receipt recorded on audit ledger')
+    toast.success('Confirmed: Handover received successfully')
   }
 
   const renderClaimCard = (claim: Claim) => {
@@ -47,7 +47,7 @@ export const SuccessorView: React.FC<SuccessorViewProps> = ({
           </span>
           {isRestrictedPlaceholder ? (
             <span className="flex items-center gap-1 text-[10px] font-mono text-rose-400">
-              <Lock className="w-3 h-3" /> Redacted
+              <Lock className="w-3 h-3" /> Locked
             </span>
           ) : (
             <span className="text-[10px] font-mono text-gray-500">
@@ -69,20 +69,20 @@ export const SuccessorView: React.FC<SuccessorViewProps> = ({
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-emerald-400" />
-            <h3 className="text-sm font-semibold text-gray-100">Successor Runway Clearance: {viewerClearance}</h3>
+            <h3 className="text-sm font-semibold text-gray-100">Your Clearance Level: {viewerClearance}</h3>
           </div>
           <p className="text-xs text-gray-400">
-            Pre-generation access filter active. Restricted credentials appear as structural stubs with zero canary leakage.
+            Permission filters active. Sensitive passwords and private keys are hidden so they never leak into handovers.
           </p>
         </div>
 
         {canaryLeakDetected ? (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500 text-rose-300 text-xs font-mono font-bold">
-            <ShieldAlert className="w-4 h-4" /> CANARY LEAK DETECTED!
+            <ShieldAlert className="w-4 h-4" /> SECURITY ALERT: RESTRICTED SECRET DETECTED!
           </div>
         ) : (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono">
-            Zero Canary Leakage Verified
+            Protected: 0 Secrets Leaked
           </div>
         )}
 
@@ -90,7 +90,7 @@ export const SuccessorView: React.FC<SuccessorViewProps> = ({
           {acknowledged ? (
             <div className="text-right">
               <span className="text-xs font-mono text-emerald-400 font-semibold flex items-center gap-1">
-                <CheckSquare className="w-4 h-4" /> Acknowledged Receipt
+                <CheckSquare className="w-4 h-4" /> Handover Received & Confirmed
               </span>
               <span className="text-[10px] text-gray-500 font-mono">{ackTimestamp}</span>
             </div>
@@ -99,7 +99,7 @@ export const SuccessorView: React.FC<SuccessorViewProps> = ({
               onClick={handleAcknowledge}
               className="px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all active:scale-95"
             >
-              Acknowledge Receipt of Handover
+              Confirm Handover Received
             </button>
           )}
         </div>
@@ -111,7 +111,7 @@ export const SuccessorView: React.FC<SuccessorViewProps> = ({
         <div className="p-5 rounded-2xl glass-panel space-y-3">
           <div className="flex items-center justify-between border-b border-white/5 pb-2">
             <span className="text-xs font-semibold text-amber-400 flex items-center gap-1.5">
-              <Flame className="w-4 h-4" /> Active Landmines & Workarounds
+              <Flame className="w-4 h-4" /> Gotchas & Known Workarounds
             </span>
             <span className="text-xs font-mono text-gray-500">{panes.landmines.length}</span>
           </div>
@@ -124,7 +124,7 @@ export const SuccessorView: React.FC<SuccessorViewProps> = ({
         <div className="p-5 rounded-2xl glass-panel space-y-3">
           <div className="flex items-center justify-between border-b border-white/5 pb-2">
             <span className="text-xs font-semibold text-blue-400 flex items-center gap-1.5">
-              <Key className="w-4 h-4" /> Account & Key Ownership
+              <Key className="w-4 h-4" /> Important Accounts & Access
             </span>
             <span className="text-xs font-mono text-gray-500">{panes.accounts.length}</span>
           </div>
@@ -137,7 +137,7 @@ export const SuccessorView: React.FC<SuccessorViewProps> = ({
         <div className="p-5 rounded-2xl glass-panel space-y-3">
           <div className="flex items-center justify-between border-b border-white/5 pb-2">
             <span className="text-xs font-semibold text-purple-400 flex items-center gap-1.5">
-              <Compass className="w-4 h-4" /> Architectural Decisions
+              <Compass className="w-4 h-4" /> Key Decisions & Why
             </span>
             <span className="text-xs font-mono text-gray-500">{panes.decisions.length}</span>
           </div>
@@ -150,7 +150,7 @@ export const SuccessorView: React.FC<SuccessorViewProps> = ({
         <div className="p-5 rounded-2xl glass-panel space-y-3">
           <div className="flex items-center justify-between border-b border-white/5 pb-2">
             <span className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
-              <ListTodo className="w-4 h-4" /> Immediate Next Actions Backlog
+              <ListTodo className="w-4 h-4" /> Pending Tasks & Next Steps
             </span>
             <span className="text-xs font-mono text-gray-500">{panes.backlog.length}</span>
           </div>

@@ -27,9 +27,9 @@ export const GapInterview: React.FC<GapInterviewProps> = ({ questions, onRespond
     return (
       <div className="p-8 text-center glass-panel rounded-2xl">
         <CheckCircle className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
-        <h3 className="text-lg font-semibold text-gray-200">No Critical Gaps Remaining</h3>
+        <h3 className="text-lg font-semibold text-gray-200">All Knowledge Gaps Resolved</h3>
         <p className="text-sm text-gray-400 mt-1">
-          All high-priority single-point-of-knowledge risks have been resolved.
+          Every key topic has been reviewed and verified. No single-person bottlenecks remaining.
         </p>
       </div>
     )
@@ -39,7 +39,7 @@ export const GapInterview: React.FC<GapInterviewProps> = ({ questions, onRespond
 
   const handleConfirm = () => {
     onRespond(currentQ.question_id, 'confirm')
-    toast.success(`Confirmed knowledge for ${currentQ.node_name}`)
+    toast.success(`Confirmed accurate for ${currentQ.node_name}`)
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1)
     }
@@ -47,7 +47,7 @@ export const GapInterview: React.FC<GapInterviewProps> = ({ questions, onRespond
 
   const handleRefute = () => {
     onRespond(currentQ.question_id, 'refute')
-    toast.error(`Marked hypothesis for ${currentQ.node_name} as refuted`)
+    toast.error(`Marked inaccurate for ${currentQ.node_name}`)
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1)
     }
@@ -55,11 +55,11 @@ export const GapInterview: React.FC<GapInterviewProps> = ({ questions, onRespond
 
   const handleEditSubmit = () => {
     if (!editText.trim()) {
-      toast.error('Please enter clarification text')
+      toast.error('Please enter the corrected information')
       return
     }
     onRespond(currentQ.question_id, 'edit', editText)
-    toast.success(`Updated knowledge record for ${currentQ.node_name}`)
+    toast.success(`Updated information for ${currentQ.node_name}`)
     setIsEditing(false)
     setEditText('')
     if (currentIndex < questions.length - 1) {
@@ -78,7 +78,7 @@ export const GapInterview: React.FC<GapInterviewProps> = ({ questions, onRespond
             style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
           />
         </div>
-        <span>Target: <strong className="text-blue-400">{currentQ.node_name}</strong></span>
+        <span>Topic: <strong className="text-blue-400">{currentQ.node_name}</strong></span>
       </div>
 
       {/* Main Question Card */}
@@ -92,13 +92,13 @@ export const GapInterview: React.FC<GapInterviewProps> = ({ questions, onRespond
               <Sparkles className="w-5 h-5" />
             </span>
             <div>
-              <span className="text-[11px] font-mono text-gray-400 uppercase">Recognition Mode Probe</span>
+              <span className="text-[11px] font-mono text-gray-400 uppercase">Drafted Handover Fact for Review</span>
               <h3 className="text-lg font-bold text-gray-100">{currentQ.node_name}</h3>
             </div>
           </div>
 
           <div className="text-right">
-            <span className="text-xs font-mono text-gray-400">Risk Score:</span>
+            <span className="text-xs font-mono text-gray-400">Bottleneck Risk:</span>
             <div className="text-base font-bold text-rose-400 font-mono">
               {(currentQ.spok_score * 100).toFixed(0)}%
             </div>
@@ -108,7 +108,7 @@ export const GapInterview: React.FC<GapInterviewProps> = ({ questions, onRespond
         {/* AI Candidate Hypothesis */}
         <div className="p-4 rounded-xl bg-black/40 border border-white/10 space-y-2">
           <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-            <HelpCircle className="w-3.5 h-3.5 text-blue-400" /> Synthesized Draft Hypothesis
+            <HelpCircle className="w-3.5 h-3.5 text-blue-400" /> Drafted Summary (From Chats & Commits)
           </span>
           <p className="text-sm text-gray-200 leading-relaxed font-medium">
             "{currentQ.candidate_hypothesis}"
@@ -121,7 +121,7 @@ export const GapInterview: React.FC<GapInterviewProps> = ({ questions, onRespond
             <textarea
               value={editText}
               onChange={e => setEditText(e.target.value)}
-              placeholder="Provide the accurate decision rationale or workaround..."
+              placeholder="Enter the real decision rationale or workaround..."
               rows={3}
               className="w-full p-3 rounded-xl bg-black/60 border border-white/15 text-sm text-gray-200 focus:outline-none focus:border-blue-500 font-sans"
             />
@@ -146,7 +146,7 @@ export const GapInterview: React.FC<GapInterviewProps> = ({ questions, onRespond
               onClick={handleConfirm}
               className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 font-semibold text-xs transition-all active:scale-95"
             >
-              <CheckCircle className="w-4 h-4" /> Confirm (Accurate)
+              <CheckCircle className="w-4 h-4" /> ✓ Yes, that's accurate
             </button>
 
             <button
@@ -156,14 +156,14 @@ export const GapInterview: React.FC<GapInterviewProps> = ({ questions, onRespond
               }}
               className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/30 text-blue-300 font-semibold text-xs transition-all active:scale-95"
             >
-              <Edit3 className="w-4 h-4" /> Correct Details
+              <Edit3 className="w-4 h-4" /> ✎ Edit / Add Details
             </button>
 
             <button
               onClick={handleRefute}
               className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 font-semibold text-xs transition-all active:scale-95"
             >
-              <XCircle className="w-4 h-4" /> Refute (Incorrect)
+              <XCircle className="w-4 h-4" /> ✕ No, that's wrong
             </button>
           </div>
         )}
