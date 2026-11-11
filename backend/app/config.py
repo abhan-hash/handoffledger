@@ -4,7 +4,11 @@ Application Configuration
 
 import os
 from typing import List
+from dotenv import load_dotenv
 from pydantic import BaseModel, Field
+
+# Load environment variables from .env file if available
+load_dotenv()
 
 
 class Settings(BaseModel):
